@@ -44,6 +44,7 @@ type DashboardContextValue = {
   editingLead: Lead | StagedLead | null;
   detailLead: Lead | null;
   planningGroup: { ids: string[]; branch: string; queueId?: string | null } | null;
+  initialPlanValues: PlanForm | null;
   toast: ToastState;
   readyGroups: SetupLeadGroup[];
   retryGroups: SetupLeadGroup[];
@@ -116,6 +117,7 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
     branch: string;
     queueId?: string | null;
   } | null>(null);
+  const [initialPlanValues, setInitialPlanValues] = useState<PlanForm | null>(null);
   const [toast, setToast] = useState<ToastState>(null);
   const toastTimerRef = useRef<number | null>(null);
   const hasLoadedPersistedStateRef = useRef(false);
@@ -419,7 +421,12 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
 
   const openGroupPreview = useCallback(
     (group: SetupLeadGroup) => {
-      const title = group.name;
+      const title =
+        group.kind === "retry"
+          ? `${group.name} (2. Versuch)`
+          : group.kind === "new-contact"
+            ? `${group.name} (Neue AP)`
+            : group.name;
       const matchingLeads =
         group.kind === "ready"
           ? leads.filter((lead) => lead.branch === group.name && lead.status === "wait")
@@ -524,6 +531,11 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
                 (lead) => lead.branch === group.name && lead.status === "not_responsible",
               );
       setPlanningGroup({ ids: ids.map((lead) => lead.id), branch: group.name });
+      setInitialPlanValues({
+        date: todayValue(),
+        timeFrom: "09:00",
+        timeTo: "12:00",
+      });
       setIsPlanOpen(true);
     },
     [leads],
@@ -534,6 +546,11 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
       const queue = liveQueue.find((item) => item.id === queueId);
       if (!queue) return;
       setPlanningGroup({ ids: queue.ids, branch: queue.branch, queueId });
+      setInitialPlanValues({
+        date: queue.planDate ?? todayValue(),
+        timeFrom: queue.planFrom ?? "09:00",
+        timeTo: queue.planTo ?? "12:00",
+      });
       setIsPlanOpen(true);
     },
     [liveQueue],
@@ -541,6 +558,7 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
 
   const closePlan = useCallback(() => {
     setIsPlanOpen(false);
+    setInitialPlanValues(null);
   }, []);
 
   const startRun = useCallback(
@@ -632,6 +650,7 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
       }
       setIsPlanOpen(false);
       setPlanningGroup(null);
+      setInitialPlanValues(null);
     },
     [planningGroup, showToast, startRun],
   );
@@ -687,6 +706,7 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
       editingLead,
       detailLead,
       planningGroup,
+      initialPlanValues,
       toast,
       readyGroups,
       retryGroups,
@@ -758,6 +778,7 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
       openQueuePreview,
       openStagedList,
       planningGroup,
+      initialPlanValues,
       readyGroups,
       resetSystem,
       retryGroups,
