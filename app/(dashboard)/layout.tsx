@@ -1,3 +1,5 @@
+"use client";
+
 import { LeadDetailSheet } from "@/components/overlays/lead-detail-sheet";
 import { AppShell } from "@/components/layout/app-shell";
 import { ListReviewSheet } from "@/components/setup/list-review-sheet";
@@ -33,6 +35,7 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
     deleteEditingLead,
     isPlanOpen,
     planningGroup,
+    initialPlanValues,
     closePlan,
     savePlan,
     isDetailOpen,
@@ -61,6 +64,7 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
       <PlanRunSheet
         isOpen={isPlanOpen}
         title={planningGroup ? `Anrufe planen: ${planningGroup.branch}` : "Anrufe planen"}
+        initialPlan={initialPlanValues}
         onClose={closePlan}
         onSave={savePlan}
       />
