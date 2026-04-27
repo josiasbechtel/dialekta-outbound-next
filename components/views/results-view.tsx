@@ -4,6 +4,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { SectionTitle } from "@/components/ui/section-title";
 import { useDashboard } from "@/hooks/use-dashboard";
 import { statusMeta } from "@/lib/dashboard-data";
+import { LeadContactCardLines } from "@/components/shared/lead-contact-card-lines";
 
 export function ResultsView() {
   const { historyLeads, searchTerm, setSearchTerm, openDetail } = useDashboard();
@@ -33,19 +34,7 @@ export function ResultsView() {
                     <i className="fa-solid fa-building" aria-hidden="true" />
                     <span>{lead.company}</span>
                   </div>
-                  <div className="result-name-line">
-                    <span className="result-name">
-                      {lead.ansprechpartnerName || `${lead.firstName} ${lead.lastName}`}
-                    </span>
-                    <span className="result-meta">
-                      <i className="fa-solid fa-phone" aria-hidden="true" />
-                      {lead.ansprechpartnerPhone || lead.phone}
-                    </span>
-                    <span className="result-meta">
-                      <i className="fa-solid fa-location-dot" aria-hidden="true" />
-                      {lead.location}
-                    </span>
-                  </div>
+                  <LeadContactCardLines lead={lead} />
                 </div>
                 <span className={`badge ${statusMeta[lead.status].className}`}>
                   {statusMeta[lead.status].label}

@@ -1,6 +1,7 @@
 import { SheetOverlay } from "@/components/ui/sheet-overlay";
 import { Lead } from "@/types/dashboard";
 import { StagedLead } from "@/types/setup";
+import { LeadContactCardLines } from "@/components/shared/lead-contact-card-lines";
 
 type ListReviewSheetProps = {
   isOpen: boolean;
@@ -32,19 +33,7 @@ export function ListReviewSheet({
                   <i className="fa-solid fa-building" aria-hidden="true" />
                   <span>{lead.company}</span>
                 </div>
-                <div className="result-name-line">
-                  <span className="result-name">
-                    {lead.firstName} {lead.lastName}
-                  </span>
-                  <span className="result-meta">
-                    <i className="fa-solid fa-phone" aria-hidden="true" />
-                    {lead.phone}
-                  </span>
-                  <span className="result-meta">
-                    <i className="fa-solid fa-location-dot" aria-hidden="true" />
-                    {lead.location}
-                  </span>
-                </div>
+                <LeadContactCardLines lead={lead} />
               </div>
               <span className="badge badge-accent">{lead.branch}</span>
             </div>

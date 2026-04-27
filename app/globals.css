@@ -1337,3 +1337,54 @@ textarea.input:focus {
     grid-template-columns: 1fr;
   }
 }
+
+.result-name.is-struck {
+  text-decoration: line-through;
+  opacity: 0.72;
+}
+
+.old-contact-inline {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+}
+
+.old-contact-inline div {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  text-decoration: line-through;
+  opacity: 0.72;
+}
+
+.old-contact-inline div:last-child {
+  font-size: 0.7rem;
+  opacity: 0.6;
+  white-space: nowrap;
+}
+
+@media (max-width: 540px) {
+  .old-contact-inline {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 4px;
+  }
+}
+
+.detail-old-contact {
+  background: rgba(239, 68, 68, 0.05);
+  padding: 14px;
+  border-radius: 12px;
+  opacity: 0.85;
+}
+
+.detail-old-contact div i {
+  color: var(--danger);
+}

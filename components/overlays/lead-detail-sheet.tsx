@@ -96,7 +96,7 @@ export function LeadDetailSheet({ isOpen, lead, onClose }: LeadDetailSheetProps)
 
       {lead.ansprechpartnerName && lead.status !== "not_reached" ? (
         <div className="detail-block">
-          <label>Vorheriger Kontakt</label>
+          <label>Vorheriger Kontakt (Nicht zuständig)</label>
           <div className="detail-old-contact">
             <div>
               <i className="fa-solid fa-user-xmark" aria-hidden="true" />
