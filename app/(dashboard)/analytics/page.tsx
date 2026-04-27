@@ -1,3 +1,5 @@
+"use client";
+
 import { AnalyticsView } from "@/components/views/analytics-view";
 
 export default function AnalyticsPage() {
