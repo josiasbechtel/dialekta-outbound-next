@@ -1,80 +1,87 @@
+"use client";
+
 import { SectionTitle } from "@/components/ui/section-title";
+import { useDashboard } from "@/hooks/use-dashboard";
 
 export function AnalyticsView() {
+  const { analytics, exportAllCsv, exportBranchCsv } = useDashboard();
+
   return (
     <section className="view active">
       <article className="card big-kpi">
-        <div className="big-number">18%</div>
+        <div className="big-number">{analytics.conversion}%</div>
         <div className="big-label">Termin-Quote</div>
       </article>
 
       <div className="analytics-grid">
         <article className="analytics-tile">
-          <b>126</b>
+          <b>{analytics.total}</b>
           <span>Leads total</span>
         </article>
         <article className="analytics-tile">
-          <b>92</b>
+          <b>{analytics.done}</b>
           <span>Erledigt</span>
         </article>
         <article className="analytics-tile">
-          <b>34</b>
+          <b>{analytics.open}</b>
           <span>Offen</span>
         </article>
       </div>
 
       <article className="card">
         <SectionTitle icon="fa-solid fa-chart-bar" title="Verteilung" />
-        <div className="bar-row">
-          <div className="bar-head">
-            <span>Termin</span>
-            <span>23 (18%)</span>
-          </div>
-          <div className="bar-track">
-            <div className="bar-fill success" style={{ width: "18%" }} />
-          </div>
-        </div>
-        <div className="bar-row">
-          <div className="bar-head">
-            <span>Interesse</span>
-            <span>17 (13%)</span>
-          </div>
-          <div className="bar-track">
-            <div className="bar-fill info" style={{ width: "13%" }} />
-          </div>
-        </div>
-        <div className="bar-row">
-          <div className="bar-head">
-            <span>Kein Interesse</span>
-            <span>41 (33%)</span>
-          </div>
-          <div className="bar-track">
-            <div className="bar-fill danger" style={{ width: "33%" }} />
-          </div>
-        </div>
+        {analytics.byStatus.length === 0 ? (
+          <div className="empty-state"><p>Noch keine Daten verfügbar.</p></div>
+        ) : (
+          analytics.byStatus.map((item) => (
+            <div className="bar-row" key={item.status}>
+              <div className="bar-head">
+                <span>{item.label}</span>
+                <span>
+                  {item.count} ({item.pct}%)
+                </span>
+              </div>
+              <div className="bar-track">
+                <div
+                  className={`bar-fill ${
+                    item.status === "appointment"
+                      ? "success"
+                      : item.status === "interest"
+                        ? "info"
+                        : item.status === "callback"
+                          ? "warning"
+                          : item.status === "no_interest" || item.status === "not_responsible"
+                            ? "danger"
+                            : ""
+                  }`}
+                  style={{ width: `${item.pct}%` }}
+                />
+              </div>
+            </div>
+          ))
+        )}
       </article>
 
       <article className="card">
         <SectionTitle icon="fa-solid fa-download" title="Listen-Verwaltung & Export" />
-        <div className="export-row">
-          <div>
-            <strong>Handwerk</strong>
-            <p>32 Leads, 6 Termine</p>
-          </div>
-          <button className="icon-btn" type="button">
-            <i className="fa-solid fa-download" aria-hidden="true" />
-          </button>
-        </div>
-        <div className="export-row">
-          <div>
-            <strong>IT</strong>
-            <p>28 Leads, 4 Termine</p>
-          </div>
-          <button className="icon-btn" type="button">
-            <i className="fa-solid fa-download" aria-hidden="true" />
-          </button>
-        </div>
-        <button className="btn btn-primary wide-btn" type="button">
+        {analytics.byBranch.length === 0 ? (
+          <div className="empty-state"><p>Noch keine Listen importiert.</p></div>
+        ) : (
+          analytics.byBranch.map((branch) => (
+            <div className="export-row" key={branch.branch}>
+              <div>
+                <strong>{branch.branch}</strong>
+                <p>
+                  {branch.done}/{branch.total} angerufen | {branch.appointments} Termine
+                </p>
+              </div>
+              <button className="icon-btn" type="button" onClick={() => exportBranchCsv(branch.branch)}>
+                <i className="fa-solid fa-download" aria-hidden="true" />
+              </button>
+            </div>
+          ))
+        )}
+        <button className="btn btn-primary wide-btn" type="button" onClick={exportAllCsv}>
           <i className="fa-solid fa-file-csv" aria-hidden="true" />
           Vollständiges CRM Backup (.csv)
         </button>

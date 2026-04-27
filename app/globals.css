@@ -436,6 +436,11 @@ button {
   color: var(--text);
 }
 
+.btn-danger-outline {
+  color: var(--danger);
+  border-color: #fca5a5;
+}
+
 .icon-btn {
   width: 36px;
   height: 36px;
@@ -548,6 +553,21 @@ button {
 .s-no_interest {
   background: #fee2e2;
   color: #991b1b;
+}
+
+.s-not_reached {
+  background: #e2e8f0;
+  color: #475569;
+}
+
+.s-not_responsible {
+  background: rgba(139, 92, 246, 0.14);
+  color: #7c3aed;
+}
+
+.s-sales_done {
+  background: #e2e8f0;
+  color: #475569;
 }
 
 .live-run-card {
@@ -777,6 +797,10 @@ button {
   background: var(--info);
 }
 
+.bar-fill.warning {
+  background: var(--warning);
+}
+
 .bar-fill.danger {
   background: var(--danger);
 }
@@ -1000,6 +1024,129 @@ textarea.input:focus {
   margin: 0;
   font-size: 0.85rem;
   color: var(--text-muted);
+}
+
+.header-action-row,
+.queue-card-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.compact-btn {
+  flex: 0 0 auto;
+  padding: 8px 12px;
+}
+
+.queue-plan-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--primary);
+  background: rgba(0, 77, 112, 0.08);
+  padding: 8px 16px;
+  border-radius: 12px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.detail-header-company {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 12px;
+  color: var(--text-muted);
+  font-size: 0.92rem;
+}
+
+.detail-pill-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.detail-branch-pill {
+  background: #e0f2fe;
+  color: #0284c7;
+}
+
+.detail-location-pill {
+  background: var(--bg);
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+}
+
+.detail-block {
+  margin-bottom: 16px;
+  padding: 12px;
+  background: var(--bg);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+}
+
+.detail-block label {
+  display: block;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+  font-weight: 700;
+}
+
+.detail-block .val {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text);
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.detail-long-text {
+  line-height: 1.5;
+  font-weight: 500;
+}
+
+.detail-old-contact {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: var(--text-muted);
+}
+
+.detail-old-contact div {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: line-through;
+}
+
+.toast {
+  position: absolute;
+  top: calc(env(safe-area-inset-top) + 20px);
+  left: 50%;
+  transform: translateX(-50%) translateY(-20px);
+  background: var(--text);
+  color: white;
+  padding: 12px 24px;
+  border-radius: 30px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  opacity: 0;
+  pointer-events: none;
+  transition: 0.2s ease;
+  z-index: 100;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
 }
 
 .desktop-side-panel {

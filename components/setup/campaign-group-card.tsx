@@ -4,12 +4,14 @@ type CampaignGroupCardProps = {
   group: SetupLeadGroup;
   onPreviewOpen: (group: SetupLeadGroup) => void;
   onPlanOpen: (group: SetupLeadGroup) => void;
+  onStart: (group: SetupLeadGroup) => void;
 };
 
 export function CampaignGroupCard({
   group,
   onPreviewOpen,
   onPlanOpen,
+  onStart,
 }: CampaignGroupCardProps) {
   const isActionCard = group.kind !== "ready";
 
@@ -39,7 +41,7 @@ export function CampaignGroupCard({
           <i className="fa-solid fa-clock" aria-hidden="true" />
           Planen
         </button>
-        <button className="btn btn-primary" type="button">
+        <button className="btn btn-primary" type="button" onClick={() => onStart(group)}>
           <i className="fa-solid fa-play" aria-hidden="true" />
           Starten
         </button>

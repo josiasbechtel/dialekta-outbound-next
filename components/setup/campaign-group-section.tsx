@@ -9,6 +9,7 @@ type CampaignGroupSectionProps = {
   className?: string;
   onPreviewOpen: (group: SetupLeadGroup) => void;
   onPlanOpen: (group: SetupLeadGroup) => void;
+  onStart: (group: SetupLeadGroup) => void;
 };
 
 export function CampaignGroupSection({
@@ -18,6 +19,7 @@ export function CampaignGroupSection({
   className,
   onPreviewOpen,
   onPlanOpen,
+  onStart,
 }: CampaignGroupSectionProps) {
   if (groups.length === 0) {
     return null;
@@ -32,6 +34,7 @@ export function CampaignGroupSection({
           key={group.id}
           onPreviewOpen={onPreviewOpen}
           onPlanOpen={onPlanOpen}
+          onStart={onStart}
         />
       ))}
     </>

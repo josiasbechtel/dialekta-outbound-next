@@ -6,7 +6,7 @@ type SheetOverlayProps = {
   isOpen: boolean;
   title: string;
   onClose: () => void;
-  children: ReactNode;
+  children?: ReactNode;
   footer?: ReactNode;
 };
 

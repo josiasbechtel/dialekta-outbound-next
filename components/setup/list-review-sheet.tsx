@@ -1,12 +1,13 @@
 import { SheetOverlay } from "@/components/ui/sheet-overlay";
+import { Lead } from "@/types/dashboard";
 import { StagedLead } from "@/types/setup";
 
 type ListReviewSheetProps = {
   isOpen: boolean;
   title: string;
-  leads: StagedLead[];
+  leads: Array<Lead | StagedLead>;
   onClose: () => void;
-  onLeadClick?: (lead: StagedLead) => void;
+  onLeadClick?: (lead: Lead | StagedLead) => void;
 };
 
 export function ListReviewSheet({

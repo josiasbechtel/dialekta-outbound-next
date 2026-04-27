@@ -2,13 +2,15 @@
 
 import { useEffect, useState } from "react";
 import { SheetOverlay } from "@/components/ui/sheet-overlay";
+import { Lead } from "@/types/dashboard";
 import { StagedLead } from "@/types/setup";
 
 type LeadEditSheetProps = {
   isOpen: boolean;
-  lead: StagedLead | null;
+  lead: Lead | StagedLead | null;
   onClose: () => void;
   onSave: (lead: StagedLead) => void;
+  onDelete?: () => void;
 };
 
 const emptyLead: StagedLead = {
@@ -24,7 +26,7 @@ const emptyLead: StagedLead = {
   notes: "",
 };
 
-export function LeadEditSheet({ isOpen, lead, onClose, onSave }: LeadEditSheetProps) {
+export function LeadEditSheet({ isOpen, lead, onClose, onSave, onDelete }: LeadEditSheetProps) {
   const [form, setForm] = useState<StagedLead>(emptyLead);
 
   useEffect(() => {
@@ -50,9 +52,16 @@ export function LeadEditSheet({ isOpen, lead, onClose, onSave }: LeadEditSheetPr
       onClose={onClose}
       footer={
         <>
-          <button className="btn btn-outline" type="button" onClick={onClose}>
-            Abbrechen
-          </button>
+          {lead?.id && onDelete ? (
+            <button className="btn btn-outline btn-danger-outline" type="button" onClick={onDelete}>
+              <i className="fa-solid fa-trash-can" aria-hidden="true" />
+              Löschen
+            </button>
+          ) : (
+            <button className="btn btn-outline" type="button" onClick={onClose}>
+              Abbrechen
+            </button>
+          )}
           <button className="btn btn-primary" type="button" onClick={handleSave}>
             <i className="fa-solid fa-check" aria-hidden="true" />
             Speichern
