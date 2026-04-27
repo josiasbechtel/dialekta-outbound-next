@@ -1853,3 +1853,215 @@ textarea.input:focus {
     font-size: 1.04rem;
   }
 }
+
+/* Runde 3: Neue-AP-Karten und echte Swipe-Geste näher an v8 */
+.badge-new-ap {
+  background: rgba(0, 214, 212, 0.1);
+  color: var(--primary);
+  border: 1px solid var(--accent);
+  font-size: 0.65rem;
+  min-height: 26px;
+  padding: 0 9px;
+  letter-spacing: 0.045em;
+}
+
+.result-item-new-ap .result-topline {
+  align-items: flex-start;
+}
+
+.result-item-new-ap .result-topline > div:first-child {
+  min-width: 0;
+  flex: 1;
+}
+
+.result-item-new-ap .badge-new-ap {
+  margin-top: 0;
+  flex-shrink: 0;
+}
+
+.result-item-new-ap .company-text {
+  margin-bottom: 6px;
+}
+
+.result-item-new-ap .result-name-line {
+  margin-bottom: 0;
+}
+
+.lead-card-links {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.lead-card-links span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.lead-card-links i {
+  width: 16px;
+  text-align: center;
+  opacity: 0.75;
+}
+
+.old-contact-inline {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 14px;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+}
+
+.old-contact-main {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.old-contact-inline .old-contact-person,
+.old-contact-inline .old-contact-email,
+.old-contact-inline .old-contact-phone {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  text-decoration: line-through;
+  opacity: 0.68;
+}
+
+.old-contact-inline .old-contact-person span,
+.old-contact-inline .old-contact-email span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.old-contact-inline .old-contact-email,
+.old-contact-inline .old-contact-phone {
+  font-size: 0.72rem;
+}
+
+.old-contact-inline .old-contact-phone {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.old-contact-inline i {
+  color: var(--text-muted);
+  width: 15px;
+  text-align: center;
+}
+
+.swipe-container {
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 16px;
+  border-radius: var(--radius);
+  background: var(--success);
+  box-shadow: var(--shadow);
+  touch-action: pan-y;
+}
+
+.swipe-bg {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  color: white;
+  font-weight: 800;
+  font-size: 1.02rem;
+  pointer-events: none;
+}
+
+.swipe-bg span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.swipe-item {
+  position: relative;
+  z-index: 2;
+  margin-bottom: 0;
+  background: var(--card);
+  transition: transform 0.28s cubic-bezier(0.25, 1, 0.5, 1);
+  will-change: transform;
+  user-select: none;
+}
+
+.swipe-container.is-dragging .swipe-item {
+  transition: none;
+}
+
+.sales-lead-card {
+  gap: 10px;
+}
+
+.sales-card-hint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding-top: 2px;
+  opacity: 0.75;
+}
+
+.sales-card-hint i {
+  font-size: 0.72rem;
+}
+
+.detail-old-contact {
+  background: rgba(100, 116, 139, 0.06);
+  border: 1px dashed var(--border);
+}
+
+.detail-old-contact-email {
+  margin-left: 24px;
+  font-size: 0.85rem;
+}
+
+.detail-old-contact-name,
+.detail-old-contact-phone,
+.detail-old-contact-email {
+  text-decoration: line-through;
+  opacity: 0.72;
+}
+
+@media (max-width: 540px) {
+  .old-contact-inline {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .old-contact-inline .old-contact-phone {
+    margin-left: 0;
+  }
+
+  .result-item-new-ap .badge-new-ap {
+    font-size: 0.62rem;
+    padding: 0 8px;
+  }
+}
+
+.old-contact-main {
+  text-decoration: none !important;
+  opacity: 1 !important;
+}

@@ -4,7 +4,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { SectionTitle } from "@/components/ui/section-title";
 import { useDashboard } from "@/hooks/use-dashboard";
 import { statusMeta } from "@/lib/dashboard-data";
-import { LeadContactCardLines } from "@/components/shared/lead-contact-card-lines";
+import { LeadContactCardLines, hasReplacementContact } from "@/components/shared/lead-contact-card-lines";
 
 export function ResultsView() {
   const { historyLeads, searchTerm, setSearchTerm, openDetail } = useDashboard();
@@ -26,23 +26,30 @@ export function ResultsView() {
         <EmptyState icon="fa-solid fa-list-ul" text="Noch keine Anrufe getätigt." />
       ) : (
         <div className="results-stack">
-          {historyLeads.map((lead) => (
-            <article className="result-item clickable" key={lead.id} onClick={() => openDetail(lead.id)}>
-              <div className="result-topline">
-                <div>
-                  <div className="company-text">
-                    <i className="fa-solid fa-building" aria-hidden="true" />
-                    <span>{lead.company}</span>
+          {historyLeads.map((lead) => {
+            const replacement = hasReplacementContact(lead);
+            return (
+              <article
+                className={`result-item clickable ${replacement ? "result-item-new-ap" : ""}`}
+                key={lead.id}
+                onClick={() => openDetail(lead.id)}
+              >
+                <div className="result-topline">
+                  <div>
+                    <div className="company-text">
+                      <i className="fa-solid fa-building" aria-hidden="true" />
+                      <span>{lead.company}</span>
+                    </div>
+                    <LeadContactCardLines lead={lead} />
                   </div>
-                  <LeadContactCardLines lead={lead} />
+                  <span className={`badge ${replacement ? "badge-new-ap" : statusMeta[lead.status].className}`}>
+                    {replacement ? "NEUE AP" : statusMeta[lead.status].label}
+                  </span>
                 </div>
-                <span className={`badge ${statusMeta[lead.status].className}`}>
-                  {statusMeta[lead.status].label}
-                </span>
-              </div>
-              {lead.summary ? <p className="result-summary">{lead.summary}</p> : null}
-            </article>
-          ))}
+                {lead.summary ? <p className="result-summary">{lead.summary}</p> : null}
+              </article>
+            );
+          })}
         </div>
       )}
     </section>

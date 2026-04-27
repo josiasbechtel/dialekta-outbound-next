@@ -8,13 +8,14 @@ type LeadContactCardLinesProps = {
   showOldContact?: boolean;
   strikeName?: boolean;
   showLocation?: boolean;
+  showContactLinks?: boolean;
 };
 
 function isDashboardLead(lead: LeadLike): lead is Lead {
   return "status" in lead;
 }
 
-function hasReplacementContact(lead: LeadLike): lead is Lead {
+export function hasReplacementContact(lead: LeadLike): lead is Lead {
   return Boolean(
     isDashboardLead(lead) &&
       lead.ansprechpartnerName &&
@@ -45,6 +46,7 @@ export function LeadContactCardLines({
   showOldContact = true,
   strikeName = false,
   showLocation = true,
+  showContactLinks = true,
 }: LeadContactCardLinesProps) {
   const replacement = hasReplacementContact(lead);
   const displayName = getLeadDisplayName(lead);
@@ -71,15 +73,40 @@ export function LeadContactCardLines({
 
       {replacement && showOldContact ? (
         <div className="old-contact-inline" aria-label="Vorheriger Kontakt, nicht zuständig">
-          <div className="old-contact-person">
-            <i className="fa-solid fa-user-xmark" aria-hidden="true" />
-            <span>{originalName}</span>
+          <div className="old-contact-main">
+            <div className="old-contact-person">
+              <i className="fa-solid fa-user-xmark" aria-hidden="true" />
+              <span>{originalName}</span>
+            </div>
+            {lead.email ? (
+              <div className="old-contact-email">
+                <i className="fa-solid fa-envelope" aria-hidden="true" />
+                <span>{lead.email}</span>
+              </div>
+            ) : null}
           </div>
           {lead.phone ? (
             <div className="old-contact-phone">
               <i className="fa-solid fa-phone" aria-hidden="true" />
               <span>{lead.phone}</span>
             </div>
+          ) : null}
+        </div>
+      ) : null}
+
+      {showContactLinks && (lead.email || lead.website) ? (
+        <div className="lead-card-links">
+          {lead.email && !replacement ? (
+            <span>
+              <i className="fa-solid fa-envelope" aria-hidden="true" />
+              {lead.email}
+            </span>
+          ) : null}
+          {lead.website ? (
+            <span>
+              <i className="fa-solid fa-globe" aria-hidden="true" />
+              {lead.website}
+            </span>
           ) : null}
         </div>
       ) : null}

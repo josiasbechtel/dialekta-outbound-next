@@ -45,7 +45,9 @@ export function LeadDetailSheet({ isOpen, lead, onClose }: LeadDetailSheetProps)
       </div>
 
       <div className="detail-pill-row">
-        <span className={`badge ${statusMeta[lead.status].className}`}>{statusMeta[lead.status].label || "OFFEN"}</span>
+        <span className={`badge ${hasReplacementContact ? "badge-new-ap" : statusMeta[lead.status].className}`}>
+          {hasReplacementContact ? "NEUE AP" : statusMeta[lead.status].label || "OFFEN"}
+        </span>
         <span className="badge detail-branch-pill">
           <i className="fa-solid fa-tag" aria-hidden="true" />
           {lead.branch}
@@ -85,7 +87,7 @@ export function LeadDetailSheet({ isOpen, lead, onClose }: LeadDetailSheetProps)
         </div>
       ) : null}
 
-      {lead.email ? (
+      {lead.email && !hasReplacementContact ? (
         <div className="detail-block detail-contact-link-block">
           <a className="val" href={`mailto:${lead.email}`}>
             <i className="fa-solid fa-envelope" aria-hidden="true" />
@@ -115,6 +117,12 @@ export function LeadDetailSheet({ isOpen, lead, onClose }: LeadDetailSheetProps)
               <div className="detail-old-contact-phone">
                 <i className="fa-solid fa-phone" aria-hidden="true" />
                 <span>{lead.phone}</span>
+              </div>
+            ) : null}
+            {lead.email ? (
+              <div className="detail-old-contact-email">
+                <i className="fa-solid fa-envelope" aria-hidden="true" />
+                <span>{lead.email}</span>
               </div>
             ) : null}
           </div>

@@ -3,7 +3,7 @@
 import { EmptyState } from "@/components/ui/empty-state";
 import { SectionTitle } from "@/components/ui/section-title";
 import { useDashboard } from "@/hooks/use-dashboard";
-import { LeadContactCardLines } from "@/components/shared/lead-contact-card-lines";
+import { LeadContactCardLines, hasReplacementContact } from "@/components/shared/lead-contact-card-lines";
 
 export function AppointmentsView() {
   const { appointmentLeads, termineTab, toggleTermineTab, openDetail } = useDashboard();
@@ -32,26 +32,35 @@ export function AppointmentsView() {
           text={termineTab === "archiv" ? "Keine vergangenen Termine." : "Aktuell keine anstehenden Termine."}
         />
       ) : (
-        appointmentLeads.map((lead) => (
-          <article className="result-item clickable" key={lead.id} onClick={() => openDetail(lead.id)}>
-            <div className="result-topline">
-              <div>
-                <div className="company-text">
-                  <i className="fa-solid fa-building" aria-hidden="true" />
-                  <span>{lead.company}</span>
-                </div>
-                <LeadContactCardLines lead={lead} />
-                {lead.appointmentDate ? (
-                  <div className="appointment-time">
-                    <i className="fa-regular fa-clock" aria-hidden="true" />
-                    {lead.appointmentDate}
+        appointmentLeads.map((lead) => {
+          const replacement = hasReplacementContact(lead);
+          return (
+            <article
+              className={`result-item clickable ${replacement ? "result-item-new-ap" : ""}`}
+              key={lead.id}
+              onClick={() => openDetail(lead.id)}
+            >
+              <div className="result-topline">
+                <div>
+                  <div className="company-text">
+                    <i className="fa-solid fa-building" aria-hidden="true" />
+                    <span>{lead.company}</span>
                   </div>
-                ) : null}
+                  <LeadContactCardLines lead={lead} />
+                  {lead.appointmentDate ? (
+                    <div className="appointment-time">
+                      <i className="fa-regular fa-clock" aria-hidden="true" />
+                      {lead.appointmentDate}
+                    </div>
+                  ) : null}
+                </div>
+                <span className={`badge ${replacement ? "badge-new-ap" : "s-appointment"}`}>
+                  {replacement ? "NEUE AP" : termineTab === "archiv" ? "VERGANGEN" : "TERMIN"}
+                </span>
               </div>
-              <span className="badge s-appointment">{termineTab === "archiv" ? "VERGANGEN" : "TERMIN"}</span>
-            </div>
-          </article>
-        ))
+            </article>
+          );
+        })
       )}
     </section>
   );
