@@ -12,6 +12,7 @@ type PlanState = {
 type PlanRunSheetProps = {
   isOpen: boolean;
   title?: string;
+  initialPlan?: PlanState | null;
   onClose: () => void;
   onSave: (plan: PlanState) => void;
 };
@@ -20,7 +21,13 @@ function getTodayValue() {
   return new Date().toISOString().split("T")[0];
 }
 
-export function PlanRunSheet({ isOpen, title, onClose, onSave }: PlanRunSheetProps) {
+export function PlanRunSheet({
+  isOpen,
+  title,
+  initialPlan,
+  onClose,
+  onSave,
+}: PlanRunSheetProps) {
   const [plan, setPlan] = useState<PlanState>({
     date: getTodayValue(),
     timeFrom: "09:00",
@@ -29,13 +36,15 @@ export function PlanRunSheet({ isOpen, title, onClose, onSave }: PlanRunSheetPro
 
   useEffect(() => {
     if (isOpen) {
-      setPlan({
-        date: getTodayValue(),
-        timeFrom: "09:00",
-        timeTo: "12:00",
-      });
+      setPlan(
+        initialPlan ?? {
+          date: getTodayValue(),
+          timeFrom: "09:00",
+          timeTo: "12:00",
+        },
+      );
     }
-  }, [isOpen]);
+  }, [initialPlan, isOpen]);
 
   return (
     <SheetOverlay
