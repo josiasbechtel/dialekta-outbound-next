@@ -3,7 +3,6 @@
 import { EmptyState } from "@/components/ui/empty-state";
 import { SectionTitle } from "@/components/ui/section-title";
 import { useDashboard } from "@/hooks/use-dashboard";
-import { triggerHaptic } from "@/lib/feedback";
 
 export function AppointmentsView() {
   const { appointmentLeads, termineTab, toggleTermineTab, openDetail } = useDashboard();
@@ -15,14 +14,7 @@ export function AppointmentsView() {
           icon={termineTab === "archiv" ? "fa-solid fa-clock-rotate-left" : "fa-regular fa-calendar-check"}
           title={termineTab === "archiv" ? "Vergangenheit" : "Anstehende Termine"}
         />
-        <button
-          className={`fbb-toggle ${termineTab === "archiv" ? "active" : ""}`}
-          type="button"
-          onClick={() => {
-            triggerHaptic(10);
-            toggleTermineTab();
-          }}
-        >
+        <button className={`fbb-toggle ${termineTab === "archiv" ? "active" : ""}`} type="button" onClick={toggleTermineTab}>
           <span>Vergangenheit</span>
           <div className={`toggle-sm ${termineTab === "archiv" ? "on" : ""}`} />
         </button>
