@@ -1,3 +1,5 @@
+"use client";
+
 import { LeadDetailSheet } from "@/components/overlays/lead-detail-sheet";
 import { AppShell } from "@/components/layout/app-shell";
 import { ListReviewSheet } from "@/components/setup/list-review-sheet";
