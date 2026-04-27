@@ -91,6 +91,8 @@ type DashboardContextValue = {
 const DashboardContext = createContext<DashboardContextValue | null>(null);
 const STORAGE_KEY = "dialekta-outbound-dashboard-state-v1";
 
+const todayValue = () => new Date().toISOString().split("T")[0];
+
 function formatPlanInfo(plan: PlanForm) {
   const dateParts = plan.date.split("-");
   return `${dateParts[2]}.${dateParts[1]}. ${plan.timeFrom}-${plan.timeTo}h`;
