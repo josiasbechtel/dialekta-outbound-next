@@ -19,7 +19,6 @@ export function StagedImportCard({
     <div className="setup-import-card">
       <div className="import-review-row">
         <div>
-          <p className="tiny-label">Import bereit</p>
           <div className="import-count">{stagedCount} Leads</div>
         </div>
         <button className="btn btn-outline review-btn" type="button" onClick={onPreviewToggle}>

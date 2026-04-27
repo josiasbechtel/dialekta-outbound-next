@@ -27,7 +27,7 @@ export function CampaignGroupSection({
 
   return (
     <>
-      <SectionTitle icon={icon} title={title} className={className} />
+      {title ? <SectionTitle icon={icon} title={title} className={className} /> : null}
       {groups.map((group) => (
         <CampaignGroupCard
           group={group}

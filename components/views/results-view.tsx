@@ -22,7 +22,7 @@ export function ResultsView() {
       </div>
 
       {historyLeads.length === 0 ? (
-        <EmptyState icon="fa-solid fa-list-ul" text="Noch keine Anrufeinträge vorhanden." />
+        <EmptyState icon="fa-solid fa-list-ul" text="Noch keine Anrufe getätigt." />
       ) : (
         <div className="results-stack">
           {historyLeads.map((lead) => (

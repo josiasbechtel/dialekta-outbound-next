@@ -7,12 +7,16 @@ export function ImportActions({ onManualAdd, onCsvImport }: ImportActionsProps) 
   return (
     <div className="quick-actions-grid">
       <button className="quick-action-card" type="button" onClick={onManualAdd}>
-        <i className="fa-solid fa-user-plus" aria-hidden="true" />
-        <span>Lead hinzufügen</span>
+        <div className="quick-action-icon">
+          <i className="fa-solid fa-user-plus" aria-hidden="true" />
+        </div>
+        <span>Lead manuell</span>
       </button>
       <button className="quick-action-card" type="button" onClick={onCsvImport}>
-        <i className="fa-solid fa-file-csv" aria-hidden="true" />
-        <span>CSV importieren</span>
+        <div className="quick-action-icon">
+          <i className="fa-solid fa-file-csv" aria-hidden="true" />
+        </div>
+        <span>Liste laden</span>
       </button>
     </div>
   );

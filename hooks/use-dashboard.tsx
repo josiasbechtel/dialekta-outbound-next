@@ -12,6 +12,7 @@ import {
   statusMeta,
   uid,
 } from "@/lib/dashboard-data";
+import { playFeedbackSound, triggerHaptic } from "@/lib/feedback";
 import { Lead, LiveQueue, TermineTab, VertriebTab } from "@/types/dashboard";
 import { SetupLeadGroup, StagedLead } from "@/types/setup";
 
@@ -363,6 +364,7 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
 
         if (nextLeadId) {
           setCurrentCallId(nextLeadId);
+          playFeedbackSound("beep");
         }
 
         return updatedQueues;
@@ -386,6 +388,7 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
 
   const loadDemoData = useCallback(() => {
     setStaged((current) => [...current, ...buildDemoImportBatch()]);
+    triggerHaptic(10);
     showToast("Frische Demo-Daten importiert", "fa-wand-magic-sparkles");
   }, [showToast]);
 
@@ -400,6 +403,7 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
     if (typeof window !== "undefined") {
       window.localStorage.removeItem(STORAGE_KEY);
     }
+    triggerHaptic(10);
     showToast("System zurückgesetzt", "fa-rotate-right");
   }, [showToast]);
 
@@ -411,6 +415,8 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
     setLeads((current) => [...current, ...staged.map(createLead)]);
     setStaged([]);
     setIsListReviewOpen(false);
+    triggerHaptic(10);
+    playFeedbackSound("success");
     showToast("Daten ins System übernommen!", "fa-check");
   }, [showToast, staged]);
 
@@ -489,6 +495,7 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
         );
       }
       setIsEditOpen(false);
+      triggerHaptic(10);
       showToast(editingLead ? "Lead aktualisiert" : "Lead hinzugefügt", "fa-check");
       setEditingLead(null);
     },
@@ -510,6 +517,7 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
     );
     setIsEditOpen(false);
     setEditingLead(null);
+    triggerHaptic(10);
     showToast("Lead gelöscht", "fa-trash-can");
   }, [editingLead, showToast]);
 
@@ -612,6 +620,8 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
         },
       ]);
 
+      triggerHaptic(10);
+      playFeedbackSound("success");
       showToast("Durchlauf gestartet", "fa-play");
     },
     [showToast],
@@ -646,6 +656,7 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
               : lead,
           ),
         );
+        triggerHaptic(10);
         showToast("Planung aktualisiert", "fa-calendar-check");
       } else {
         startRun(planningGroup.ids, planningGroup.branch, plan);
@@ -684,6 +695,7 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
           lead.id === leadId ? { ...lead, prevStatus: lead.status, status: "sales_done" } : lead,
         ),
       );
+      triggerHaptic(10);
       showToast("Lead erledigt", "fa-check");
     },
     [showToast],

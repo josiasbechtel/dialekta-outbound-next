@@ -11,7 +11,7 @@ export const statusMeta: Record<LeadStatus, StatusMeta> = {
   not_responsible: { label: "NEUE ANSPRECHPERSON", className: "s-not_responsible", final: true },
   no_interest: { label: "KEIN INTERESSE", className: "s-no_interest", final: true },
   sales_done: { label: "ERLEDIGT", className: "s-sales_done", final: true },
-  sales_deleted: { label: "GELÖSCHT", className: "s-sales_done", final: true },
+  sales_deleted: { label: "GELÖSCHT", className: "s-sales_deleted", final: true },
 };
 
 const stagedLeads: StagedLead[] = [

@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { SheetOverlay } from "@/components/ui/sheet-overlay";
+import { triggerHaptic } from "@/lib/feedback";
 import { Lead } from "@/types/dashboard";
 import { StagedLead } from "@/types/setup";
 
@@ -28,10 +29,21 @@ const emptyLead: StagedLead = {
 
 export function LeadEditSheet({ isOpen, lead, onClose, onSave, onDelete }: LeadEditSheetProps) {
   const [form, setForm] = useState<StagedLead>(emptyLead);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const confirmTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
     setForm(lead ?? emptyLead);
+    setConfirmDelete(false);
   }, [lead, isOpen]);
+
+  useEffect(() => {
+    return () => {
+      if (confirmTimerRef.current) {
+        window.clearTimeout(confirmTimerRef.current);
+      }
+    };
+  }, []);
 
   function updateField<K extends keyof StagedLead>(key: K, value: StagedLead[K]) {
     setForm((current) => ({ ...current, [key]: value }));
@@ -45,6 +57,27 @@ export function LeadEditSheet({ isOpen, lead, onClose, onSave, onDelete }: LeadE
     });
   }
 
+  function handleDelete() {
+    if (!onDelete) return;
+
+    if (!confirmDelete) {
+      setConfirmDelete(true);
+      triggerHaptic(10);
+      if (confirmTimerRef.current) {
+        window.clearTimeout(confirmTimerRef.current);
+      }
+      confirmTimerRef.current = window.setTimeout(() => {
+        setConfirmDelete(false);
+      }, 3000);
+      return;
+    }
+
+    if (confirmTimerRef.current) {
+      window.clearTimeout(confirmTimerRef.current);
+    }
+    onDelete();
+  }
+
   return (
     <SheetOverlay
       isOpen={isOpen}
@@ -53,9 +86,9 @@ export function LeadEditSheet({ isOpen, lead, onClose, onSave, onDelete }: LeadE
       footer={
         <>
           {lead?.id && onDelete ? (
-            <button className="btn btn-outline btn-danger-outline" type="button" onClick={onDelete}>
-              <i className="fa-solid fa-trash-can" aria-hidden="true" />
-              Löschen
+            <button className="btn btn-outline btn-danger-outline" type="button" onClick={handleDelete}>
+              <i className={`fa-solid ${confirmDelete ? "fa-triangle-exclamation" : "fa-trash-can"}`} aria-hidden="true" />
+              {confirmDelete ? "Sicher?" : "Löschen"}
             </button>
           ) : (
             <button className="btn btn-outline" type="button" onClick={onClose}>

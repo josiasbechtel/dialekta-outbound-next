@@ -25,6 +25,8 @@ export function SetupView() {
     startRun,
   } = useDashboard();
 
+  const allGroups = [...readyGroups, ...retryGroups, ...newContactGroups];
+
   function handleStart(group: SetupLeadGroup) {
     const ids =
       group.kind === "ready"
@@ -45,7 +47,7 @@ export function SetupView() {
   return (
     <section className="view active">
       <div className="setup-desktop-grid">
-        <div>
+        <div className="setup-sidebar">
           <SectionTitle icon="fa-solid fa-1" title="Import & Erfassung" />
 
           <ImportActions onManualAdd={() => openLeadEditor()} onCsvImport={loadDemoData} />
@@ -56,15 +58,22 @@ export function SetupView() {
             onPreviewToggle={openStagedList}
             onAcceptImport={acceptImport}
           />
+        </div>
 
-          <CampaignGroupSection
-            icon="fa-solid fa-layer-group"
-            title="Startklar"
-            groups={readyGroups}
-            onPreviewOpen={openGroupPreview}
-            onPlanOpen={openPlan}
-            onStart={handleStart}
-          />
+        <div className="campaign-column">
+          <SectionTitle icon="fa-solid fa-layer-group" title="Startklar" />
+
+          {readyGroups.map((group) => (
+            <CampaignGroupSection
+              icon="fa-solid fa-layer-group"
+              title=""
+              groups={[group]}
+              key={group.id}
+              onPreviewOpen={openGroupPreview}
+              onPlanOpen={openPlan}
+              onStart={handleStart}
+            />
+          ))}
 
           <CampaignGroupSection
             icon="fa-solid fa-phone-slash"
@@ -86,23 +95,22 @@ export function SetupView() {
             onStart={handleStart}
           />
 
-          {leads.length === 0 && staged.length === 0 ? (
+          {allGroups.length === 0 ? (
             <EmptyState
               icon="fa-solid fa-layer-group"
-              text="Keine kampagnen-bereiten Leads vorhanden. Lade Demo-Daten oder füge Leads manuell hinzu."
+              text="Lade Leads hoch oder erstelle sie manuell, um Outbound-Kampagnen zu starten."
             />
           ) : null}
-        </div>
 
-        <aside className="desktop-side-panel">
-          <SectionTitle icon="fa-solid fa-layer-group" title="Übersicht" />
-          <div className="card side-note-card">
-            <strong>Aktueller Stand</strong>
-            <p>{leads.length} Leads im System</p>
-            <p>{staged.length} Leads im Import-Staging</p>
-            <p>{liveQueue.length} aktive oder geplante Durchläufe</p>
-          </div>
-        </aside>
+          {(leads.length > 0 || staged.length > 0 || liveQueue.length > 0) && allGroups.length === 0 ? (
+            <div className="card side-note-card">
+              <strong>Aktueller Stand</strong>
+              <p>{leads.length} Leads im System</p>
+              <p>{staged.length} Leads im Import-Staging</p>
+              <p>{liveQueue.length} aktive oder geplante Durchläufe</p>
+            </div>
+          ) : null}
+        </div>
       </div>
     </section>
   );

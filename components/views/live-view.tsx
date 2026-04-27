@@ -16,7 +16,8 @@ export function LiveView() {
     return (
       <section className="view active">
         <SectionTitle icon="fa-solid fa-satellite-dish" title="Automatischer Durchlauf" />
-        <EmptyState icon="fa-solid fa-headset" text="Aktuell läuft kein automatischer Durchlauf." />
+        <p className="sub-copy live-sub-copy">Die KI arbeitet im Hintergrund. Lehne dich zurück.</p>
+        <EmptyState icon="fa-solid fa-headset" text="Aktuell läuft kein Durchlauf. Starte Kampagnen im Setup." />
       </section>
     );
   }
@@ -24,6 +25,7 @@ export function LiveView() {
   return (
     <section className="view active">
       <SectionTitle icon="fa-solid fa-satellite-dish" title="Automatischer Durchlauf" />
+      <p className="sub-copy live-sub-copy">Die KI arbeitet im Hintergrund. Lehne dich zurück.</p>
 
       {orderedQueues.map((queue) => {
         const doneCount = queue.ids.filter((id) => {
@@ -55,6 +57,13 @@ export function LiveView() {
             <div className="run-body">
               {activeLead ? (
                 <>
+                  <div className="sound-wave-mini" aria-hidden="true">
+                    <span className="bar" />
+                    <span className="bar" />
+                    <span className="bar" />
+                    <span className="bar" />
+                    <span className="bar" />
+                  </div>
                   <div className="call-name">
                     {activeLead.company} • {activeLead.firstName} {activeLead.lastName}
                   </div>
@@ -69,7 +78,7 @@ export function LiveView() {
                   Geplant: {queue.planDate} {queue.planFrom}-{queue.planTo}
                 </button>
               ) : (
-                <div className="call-name">Wartet in Schlange</div>
+                <div className="call-name">Wartet in der Warteschlange</div>
               )}
 
               <div className="queue-card-actions">

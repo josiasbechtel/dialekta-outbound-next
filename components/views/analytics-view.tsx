@@ -16,7 +16,7 @@ export function AnalyticsView() {
       <div className="analytics-grid">
         <article className="analytics-tile">
           <b>{analytics.total}</b>
-          <span>Leads total</span>
+          <span>Leads</span>
         </article>
         <article className="analytics-tile">
           <b>{analytics.done}</b>
