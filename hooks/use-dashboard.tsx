@@ -156,8 +156,8 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
             setStaged(remoteState.staged.length > 0 || remoteState.leads.length > 0 ? remoteState.staged : initialStagedLeads);
             setLiveQueue(remoteState.liveQueue);
             setCurrentCallId(remoteState.currentCallId);
-            hasHydratedRemoteStateRef.current = true;
           }
+          hasHydratedRemoteStateRef.current = true;
           return;
         }
 
@@ -183,6 +183,9 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
         setSearchTerm(parsed.searchTerm ?? "");
       } catch (error) {
         console.error("Dashboard-Daten konnten nicht geladen werden", error);
+        if (isSupabaseConfigured) {
+          hasHydratedRemoteStateRef.current = true;
+        }
       } finally {
         hasLoadedPersistedStateRef.current = true;
       }

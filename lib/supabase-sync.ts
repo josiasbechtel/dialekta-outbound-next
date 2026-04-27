@@ -9,9 +9,13 @@ type DashboardSnapshot = {
   currentCallId: string | null;
 };
 
+const DEFAULT_IMPORT_BATCH_ID = "00000000-0000-0000-0000-000000000001";
+
 function toStagedRow(lead: StagedLead) {
   return {
     id: lead.id,
+    import_batch_id: DEFAULT_IMPORT_BATCH_ID,
+    external_row_number: null,
     company: lead.company,
     first_name: lead.firstName,
     last_name: lead.lastName,
@@ -27,14 +31,14 @@ function toStagedRow(lead: StagedLead) {
 function fromStagedRow(row: any): StagedLead {
   return {
     id: row.id,
-    company: row.company,
-    firstName: row.first_name,
-    lastName: row.last_name,
-    phone: row.phone,
+    company: row.company ?? "",
+    firstName: row.first_name ?? "",
+    lastName: row.last_name ?? "",
+    phone: row.phone ?? "",
     email: row.email ?? undefined,
     website: row.website ?? undefined,
-    location: row.location,
-    branch: row.branch,
+    location: row.location ?? "",
+    branch: row.branch ?? "Manuell",
     notes: row.notes ?? undefined,
   };
 }
@@ -59,7 +63,7 @@ function toLeadRow(lead: Lead) {
 function fromLeadRow(row: any): Lead {
   return {
     ...fromStagedRow(row),
-    status: row.status,
+    status: row.status ?? "wait",
     planInfo: row.plan_info,
     planTimestamp: row.plan_timestamp ?? 0,
     actionTs: row.action_ts ?? 0,
@@ -78,34 +82,44 @@ async function clearTable(table: string) {
   if (result.error) throw result.error;
 }
 
+async function ensureImportBatch() {
+  const result = await supabase!.from("import_batches").upsert({
+    id: DEFAULT_IMPORT_BATCH_ID,
+    name: "Dashboard Import",
+    source: "app",
+    row_count: 0,
+    updated_at: new Date().toISOString(),
+  });
+  if (result.error) throw result.error;
+}
+
 export async function loadDashboardState(): Promise<DashboardSnapshot | null> {
   if (!supabase) return null;
 
-  const [leadsResult, stagedResult, queuesResult, queueLeadsResult, settingsResult] = await Promise.all([
+  const [leadsResult, stagedResult, runsResult, runLeadsResult] = await Promise.all([
     supabase.from("leads").select("*").order("created_at", { ascending: true }),
     supabase.from("staged_leads").select("*").order("created_at", { ascending: true }),
-    supabase.from("live_queues").select("*").order("created_at", { ascending: true }),
-    supabase.from("live_queue_leads").select("queue_id, lead_id, position").order("position", { ascending: true }),
-    supabase.from("dashboard_settings").select("current_call_id").eq("id", "default").maybeSingle(),
+    supabase.from("call_runs").select("*").order("created_at", { ascending: true }),
+    supabase.from("call_run_leads").select("call_run_id, lead_id, position").order("position", { ascending: true }),
   ]);
 
-  const firstError = leadsResult.error ?? stagedResult.error ?? queuesResult.error ?? queueLeadsResult.error ?? settingsResult.error;
+  const firstError = leadsResult.error ?? stagedResult.error ?? runsResult.error ?? runLeadsResult.error;
   if (firstError) throw firstError;
 
-  const queueLeadMap = new Map<string, string[]>();
-  (queueLeadsResult.data ?? []).forEach((row: any) => {
-    const ids = queueLeadMap.get(row.queue_id) ?? [];
+  const runLeadMap = new Map<string, string[]>();
+  (runLeadsResult.data ?? []).forEach((row: any) => {
+    const ids = runLeadMap.get(row.call_run_id) ?? [];
     ids.push(row.lead_id);
-    queueLeadMap.set(row.queue_id, ids);
+    runLeadMap.set(row.call_run_id, ids);
   });
 
   return {
     leads: (leadsResult.data ?? []).map(fromLeadRow),
     staged: (stagedResult.data ?? []).map(fromStagedRow),
-    liveQueue: (queuesResult.data ?? []).map((row: any) => ({
+    liveQueue: (runsResult.data ?? []).map((row: any) => ({
       id: row.id,
       branch: row.branch,
-      ids: queueLeadMap.get(row.id) ?? [],
+      ids: runLeadMap.get(row.id) ?? [],
       total: row.total,
       isPlanned: row.is_planned,
       planDate: row.plan_date,
@@ -113,37 +127,48 @@ export async function loadDashboardState(): Promise<DashboardSnapshot | null> {
       planTo: row.plan_to,
       planTimestamp: row.plan_timestamp ?? 0,
     })),
-    currentCallId: settingsResult.data?.current_call_id ?? null,
+    currentCallId: null,
   };
 }
 
 export async function saveDashboardState(snapshot: DashboardSnapshot) {
   if (!supabase) return;
 
-  const settings = await supabase.from("dashboard_settings").upsert({
-    id: "default",
-    current_call_id: snapshot.currentCallId,
-    updated_at: new Date().toISOString(),
-  });
-  if (settings.error) throw settings.error;
+  await ensureImportBatch();
 
-  await clearTable("live_queue_leads");
-  await clearTable("live_queues");
+  await clearTable("call_run_leads");
+  await clearTable("call_runs");
+  await clearTable("appointments");
   await clearTable("leads");
   await clearTable("staged_leads");
-
-  if (snapshot.leads.length > 0) {
-    const result = await supabase.from("leads").insert(snapshot.leads.map(toLeadRow));
-    if (result.error) throw result.error;
-  }
 
   if (snapshot.staged.length > 0) {
     const result = await supabase.from("staged_leads").insert(snapshot.staged.map(toStagedRow));
     if (result.error) throw result.error;
   }
 
+  if (snapshot.leads.length > 0) {
+    const result = await supabase.from("leads").insert(snapshot.leads.map(toLeadRow));
+    if (result.error) throw result.error;
+  }
+
+  const appointmentRows = snapshot.leads
+    .filter((lead) => lead.status === "appointment" && lead.appointmentDate)
+    .map((lead) => ({
+      id: `appointment-${lead.id}`,
+      lead_id: lead.id,
+      appointment_date: lead.appointmentDate,
+      context: lead.appointmentContext,
+      summary: lead.summary,
+    }));
+
+  if (appointmentRows.length > 0) {
+    const result = await supabase.from("appointments").insert(appointmentRows);
+    if (result.error) throw result.error;
+  }
+
   if (snapshot.liveQueue.length > 0) {
-    const queueResult = await supabase.from("live_queues").insert(
+    const runResult = await supabase.from("call_runs").insert(
       snapshot.liveQueue.map((queue) => ({
         id: queue.id,
         branch: queue.branch,
@@ -153,22 +178,37 @@ export async function saveDashboardState(snapshot: DashboardSnapshot) {
         plan_from: queue.planFrom,
         plan_to: queue.planTo,
         plan_timestamp: queue.planTimestamp,
+        current_call_id: snapshot.currentCallId,
       })),
     );
-    if (queueResult.error) throw queueResult.error;
+    if (runResult.error) throw runResult.error;
   }
 
   const junctionRows = snapshot.liveQueue.flatMap((queue) =>
     queue.ids.map((leadId, position) => ({
       id: `${queue.id}-${leadId}`,
-      queue_id: queue.id,
+      call_run_id: queue.id,
       lead_id: leadId,
       position,
     })),
   );
 
   if (junctionRows.length > 0) {
-    const result = await supabase.from("live_queue_leads").insert(junctionRows);
+    const result = await supabase.from("call_run_leads").insert(junctionRows);
+    if (result.error) throw result.error;
+  }
+
+  const eventRows = snapshot.leads.map((lead) => ({
+    lead_id: lead.id,
+    event_type: "snapshot",
+    old_status: null,
+    new_status: lead.status,
+    note: "Automatischer Dashboard-Snapshot",
+    payload: lead,
+  }));
+
+  if (eventRows.length > 0) {
+    const result = await supabase.from("lead_events").insert(eventRows);
     if (result.error) throw result.error;
   }
 }

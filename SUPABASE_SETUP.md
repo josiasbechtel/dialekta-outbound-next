@@ -1,73 +1,51 @@
-# Supabase Setup für Dialekta Outbound Dashboard
+# Supabase Setup fuer Dialekta Outbound
 
-Diese Version speichert Leads, Import-Liste, Live-Queue und aktuellen Call-State direkt in Supabase, sobald die beiden ENV-Variablen gesetzt sind.
+Diese Version schreibt echte Daten in Supabase.
 
-## 1. Projekt erstellen
+## 1. Supabase Tabellen neu anlegen
 
-1. Öffne https://supabase.com
-2. Klicke auf **New project**
-3. Name zum Beispiel: `dialekta-outbound`
-4. Region wählen, Passwort setzen, Projekt erstellen
+In Supabase:
 
-## 2. Tabellen automatisch anlegen
+1. Links auf **SQL Editor**
+2. **New query**
+3. Inhalt aus `supabase/schema.sql` komplett einfuegen
+4. **Run** klicken
 
-1. In Supabase links auf **SQL Editor** gehen
-2. **New query** öffnen
-3. Den ganzen Inhalt aus `supabase/schema.sql` einfügen
-4. Auf **Run** klicken
+Wichtig: Das Script setzt die Dashboard-Tabellen sauber neu auf. Da aktuell noch keine echten Daten drin sind, ist das die einfachste und sicherste Variante.
 
-Danach hast du diese Tabellen:
+## 2. Vercel Environment Variables
 
-- `staged_leads`: importierte, aber noch nicht übernommene Leads
-- `leads`: übernommene Leads mit Status, Termin, Notizen, Zusammenfassung
-- `live_queues`: geplante oder laufende Anruflisten
-- `live_queue_leads`: Verbindung zwischen Queue und Lead
-- `dashboard_settings`: aktueller Call-State
-- `lead_events`: vorbereitet für spätere Ereignis-Historie
-- `export_logs`: vorbereitet für spätere Export-Protokolle
-
-## 3. Supabase Keys kopieren
-
-1. Links unten auf **Project Settings**
-2. Dann **API**
-3. Kopiere:
-   - **Project URL**
-   - **anon public key**
-
-## 4. Lokal verbinden
-
-Im Projekt eine Datei `.env.local` erstellen:
+In Vercel unter **Project Settings > Environment Variables** diese zwei Variablen setzen:
 
 ```env
-NEXT_PUBLIC_SUPABASE_URL=https://DEIN-PROJEKT.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=DEIN_ANON_PUBLIC_KEY
+NEXT_PUBLIC_SUPABASE_URL=https://ebjuheaxtahepllhwhfq.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=sb_publishable_DEIN_GANZER_KEY
 ```
 
-Dann installieren und starten:
+Nicht den Secret Key verwenden.
 
-```bash
-npm install
-npm run dev
-```
+## 3. Redeploy
 
-## 5. Vercel verbinden
+In Vercel:
 
-1. Vercel Projekt öffnen
-2. **Settings**
-3. **Environment Variables**
-4. Diese zwei Variablen anlegen:
-   - `NEXT_PUBLIC_SUPABASE_URL`
-   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-5. Danach in Vercel **Redeploy** auslösen
+1. **Deployments**
+2. Beim letzten Deployment auf die drei Punkte
+3. **Redeploy**
 
-## 6. Testen
+## 4. Test
 
-1. App öffnen
-2. Einen Lead hinzufügen oder Demo-Daten importieren
-3. In Supabase links auf **Table Editor** gehen
-4. Tabelle `staged_leads` oder `leads` öffnen
-5. Du solltest die Daten sehen
+Nach dem Redeploy:
 
-## Wichtiger Sicherheitshinweis
+1. App oeffnen
+2. Demo-Daten laden oder manuellen Lead erstellen
+3. Supabase > Table Editor pruefen
 
-Das SQL ist bewusst sehr einfach gehalten, damit es sofort funktioniert. Die Tabellen sind mit dem anon key schreibbar. Für einen öffentlichen Produktivbetrieb sollte danach Supabase Auth ergänzt werden, damit nur berechtigte Nutzer schreiben dürfen.
+Erwartung:
+
+- `staged_leads`: importierte, noch nicht uebernommene Leads
+- `leads`: uebernommene/finale Leads
+- `call_runs`: gestartete oder geplante Anrufdurchlaeufe
+- `call_run_leads`: Zuordnung der Leads zu Durchlaeufen
+- `appointments`: Termine
+- `lead_events`: automatische Snapshots/Aenderungsprotokoll
+- `import_batches`: Import-Gruppe
