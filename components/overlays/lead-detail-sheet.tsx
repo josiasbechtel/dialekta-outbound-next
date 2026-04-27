@@ -15,11 +15,12 @@ export function LeadDetailSheet({ isOpen, lead, onClose }: LeadDetailSheetProps)
     return null;
   }
 
-  const displayName =
-    lead.ansprechpartnerName && lead.status !== "not_reached"
-      ? lead.ansprechpartnerName
-      : `${lead.firstName} ${lead.lastName}`.trim();
-  const phoneToUse = lead.ansprechpartnerPhone || lead.phone;
+  const hasReplacementContact = Boolean(lead.ansprechpartnerName && lead.status !== "not_reached");
+  const displayName = hasReplacementContact
+    ? lead.ansprechpartnerName!
+    : `${lead.firstName} ${lead.lastName}`.trim();
+  const phoneToUse = hasReplacementContact ? lead.ansprechpartnerPhone || lead.phone : lead.phone;
+  const oldContactName = `${lead.firstName} ${lead.lastName}`.trim();
   const websiteUrl = lead.website
     ? lead.website.startsWith("http")
       ? lead.website
@@ -45,39 +46,47 @@ export function LeadDetailSheet({ isOpen, lead, onClose }: LeadDetailSheetProps)
 
       <div className="detail-pill-row">
         <span className={`badge ${statusMeta[lead.status].className}`}>{statusMeta[lead.status].label || "OFFEN"}</span>
-        <span className="badge detail-branch-pill">{lead.branch}</span>
-        <a
-          href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${lead.company} ${lead.location}`)}`}
-          target="_blank"
-          className="badge detail-location-pill"
-        >
-          <i className="fa-solid fa-location-dot" aria-hidden="true" />
-          <span>{lead.location}</span>
-        </a>
+        <span className="badge detail-branch-pill">
+          <i className="fa-solid fa-tag" aria-hidden="true" />
+          {lead.branch}
+        </span>
+        {lead.location ? (
+          <a
+            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${lead.company} ${lead.location}`)}`}
+            target="_blank"
+            className="badge detail-location-pill"
+          >
+            <i className="fa-solid fa-location-dot" aria-hidden="true" />
+            <span>{lead.location}</span>
+            <i className="fa-solid fa-arrow-up-right-from-square detail-location-external" aria-hidden="true" />
+          </a>
+        ) : null}
       </div>
 
       {lead.appointmentDate ? (
-        <div className="detail-block">
-          <label>Termin</label>
-          <div className="val">
-            <i className="fa-regular fa-calendar-check" aria-hidden="true" />
-            <span>{lead.appointmentDate}</span>
+        <div className="termin-block-nice">
+          <i className="fa-regular fa-calendar-check" aria-hidden="true" />
+          <div>
+            <div className="termin-block-time">{lead.appointmentDate}</div>
+            {lead.appointmentContext ? <div className="termin-block-context">{lead.appointmentContext}</div> : null}
           </div>
         </div>
       ) : null}
 
       {lead.summary ? (
-        <div className="detail-block">
-          <label>Zusammenfassung vom Anruf</label>
-          <div className="val detail-long-text">
+        <div className="detail-block detail-summary-block">
+          <label>
             <i className="fa-solid fa-clipboard-list" aria-hidden="true" />
+            Zusammenfassung vom Anruf
+          </label>
+          <div className="val detail-long-text">
             <span>{lead.summary}</span>
           </div>
         </div>
       ) : null}
 
       {lead.email ? (
-        <div className="detail-block">
+        <div className="detail-block detail-contact-link-block">
           <a className="val" href={`mailto:${lead.email}`}>
             <i className="fa-solid fa-envelope" aria-hidden="true" />
             <span>{lead.email}</span>
@@ -86,7 +95,7 @@ export function LeadDetailSheet({ isOpen, lead, onClose }: LeadDetailSheetProps)
       ) : null}
 
       {websiteUrl ? (
-        <div className="detail-block">
+        <div className="detail-block detail-contact-link-block">
           <a className="val" href={websiteUrl} target="_blank">
             <i className="fa-solid fa-globe" aria-hidden="true" />
             <span>{lead.website}</span>
@@ -94,20 +103,20 @@ export function LeadDetailSheet({ isOpen, lead, onClose }: LeadDetailSheetProps)
         </div>
       ) : null}
 
-      {lead.ansprechpartnerName && lead.status !== "not_reached" ? (
-        <div className="detail-block">
+      {hasReplacementContact ? (
+        <div className="detail-block detail-old-contact-block">
           <label>Vorheriger Kontakt (Nicht zuständig)</label>
           <div className="detail-old-contact">
-            <div>
+            <div className="detail-old-contact-name">
               <i className="fa-solid fa-user-xmark" aria-hidden="true" />
-              <span>
-                {lead.firstName} {lead.lastName}
-              </span>
+              <span>{oldContactName}</span>
             </div>
-            <div>
-              <i className="fa-solid fa-phone" aria-hidden="true" />
-              <span>{lead.phone}</span>
-            </div>
+            {lead.phone ? (
+              <div className="detail-old-contact-phone">
+                <i className="fa-solid fa-phone" aria-hidden="true" />
+                <span>{lead.phone}</span>
+              </div>
+            ) : null}
           </div>
         </div>
       ) : null}

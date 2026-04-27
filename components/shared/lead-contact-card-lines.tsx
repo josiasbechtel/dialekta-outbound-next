@@ -53,14 +53,16 @@ export function LeadContactCardLines({
 
   return (
     <>
-      <div className="result-name-line">
+      <div className={`result-name-line${replacement ? " has-replacement-contact" : ""}`}>
         <span className={`result-name${strikeName ? " is-struck" : ""}`}>{displayName}</span>
-        <span className="result-meta">
-          <i className="fa-solid fa-phone" aria-hidden="true" />
-          {displayPhone}
-        </span>
+        {displayPhone ? (
+          <span className="result-meta primary-phone">
+            <i className="fa-solid fa-phone" aria-hidden="true" />
+            {displayPhone}
+          </span>
+        ) : null}
         {showLocation && lead.location ? (
-          <span className="result-meta">
+          <span className="result-meta location-meta">
             <i className="fa-solid fa-location-dot" aria-hidden="true" />
             {lead.location}
           </span>
@@ -69,14 +71,16 @@ export function LeadContactCardLines({
 
       {replacement && showOldContact ? (
         <div className="old-contact-inline" aria-label="Vorheriger Kontakt, nicht zuständig">
-          <div>
+          <div className="old-contact-person">
             <i className="fa-solid fa-user-xmark" aria-hidden="true" />
             <span>{originalName}</span>
           </div>
-          <div>
-            <i className="fa-solid fa-phone" aria-hidden="true" />
-            <span>{lead.phone}</span>
-          </div>
+          {lead.phone ? (
+            <div className="old-contact-phone">
+              <i className="fa-solid fa-phone" aria-hidden="true" />
+              <span>{lead.phone}</span>
+            </div>
+          ) : null}
         </div>
       ) : null}
     </>
