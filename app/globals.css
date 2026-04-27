@@ -845,6 +845,7 @@ button {
   color: var(--text-muted);
   font-size: 0.72rem;
   font-weight: 700;
+  position: relative;
 }
 
 .nav-btn.active {
@@ -865,6 +866,11 @@ button {
   position: absolute;
   margin-top: -22px;
   margin-left: 18px;
+  display: none;
+}
+
+.nav-btn.badge-nav.has-items::after {
+  display: block;
 }
 
 .overlay {

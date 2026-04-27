@@ -88,17 +88,11 @@ type DashboardContextValue = {
 };
 
 const DashboardContext = createContext<DashboardContextValue | null>(null);
-
-const todayValue = () => new Date().toISOString().split("T")[0];
+const STORAGE_KEY = "dialekta-outbound-dashboard-state-v1";
 
 function formatPlanInfo(plan: PlanForm) {
   const dateParts = plan.date.split("-");
   return `${dateParts[2]}.${dateParts[1]}. ${plan.timeFrom}-${plan.timeTo}h`;
-}
-
-function normalizeToLead(input: Lead | StagedLead): Lead {
-  if ("status" in input) return input;
-  return createLead(input);
 }
 
 export function DashboardProvider({ children }: { children: React.ReactNode }) {
@@ -124,6 +118,7 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
   } | null>(null);
   const [toast, setToast] = useState<ToastState>(null);
   const toastTimerRef = useRef<number | null>(null);
+  const hasLoadedPersistedStateRef = useRef(false);
 
   const showToast = useCallback((message: string, icon = "fa-check-circle") => {
     setToast({ message, icon });
@@ -140,6 +135,55 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
       }
     };
   }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const raw = window.localStorage.getItem(STORAGE_KEY);
+      if (!raw) {
+        hasLoadedPersistedStateRef.current = true;
+        return;
+      }
+
+      const parsed = JSON.parse(raw) as {
+        leads?: Lead[];
+        staged?: StagedLead[];
+        liveQueue?: LiveQueue[];
+        currentCallId?: string | null;
+        vertriebTab?: VertriebTab;
+        termineTab?: TermineTab;
+        searchTerm?: string;
+      };
+
+      setLeads(parsed.leads ?? []);
+      setStaged(parsed.staged ?? initialStagedLeads);
+      setLiveQueue(parsed.liveQueue ?? []);
+      setCurrentCallId(parsed.currentCallId ?? null);
+      setVertriebTab(parsed.vertriebTab ?? "hot");
+      setTermineTab(parsed.termineTab ?? "active");
+      setSearchTerm(parsed.searchTerm ?? "");
+    } catch {
+      // Ignore broken local data and continue with defaults.
+    } finally {
+      hasLoadedPersistedStateRef.current = true;
+    }
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || !hasLoadedPersistedStateRef.current) return;
+    window.localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({
+        leads,
+        staged,
+        liveQueue,
+        currentCallId,
+        vertriebTab,
+        termineTab,
+        searchTerm,
+      }),
+    );
+  }, [currentCallId, leads, liveQueue, searchTerm, staged, termineTab, vertriebTab]);
 
   const liveQueueIds = useMemo(() => new Set(liveQueue.flatMap((queue) => queue.ids)), [liveQueue]);
   const setupGroups = useMemo(() => buildSetupGroups(leads, liveQueueIds), [leads, liveQueueIds]);
@@ -330,6 +374,12 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
     return () => window.clearInterval(timer);
   }, [liveQueue.length, runSimulationTick]);
 
+  useEffect(() => {
+    if (liveQueue.length === 0 || currentCallId) return;
+    const timer = window.setTimeout(() => runSimulationTick(), 150);
+    return () => window.clearTimeout(timer);
+  }, [currentCallId, liveQueue.length, runSimulationTick]);
+
   const loadDemoData = useCallback(() => {
     setStaged((current) => [...current, ...buildDemoImportBatch()]);
     showToast("Frische Demo-Daten importiert", "fa-wand-magic-sparkles");
@@ -341,6 +391,11 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
     setLiveQueue([]);
     setCurrentCallId(null);
     setSearchTerm("");
+    setVertriebTab("hot");
+    setTermineTab("active");
+    if (typeof window !== "undefined") {
+      window.localStorage.removeItem(STORAGE_KEY);
+    }
     showToast("System zurückgesetzt", "fa-rotate-right");
   }, [showToast]);
 
