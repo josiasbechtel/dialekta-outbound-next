@@ -56,11 +56,19 @@ export function ListReviewSheet({
             >
               <div className="result-topline">
                 <div>
-                  <div className="company-text">
-                    <i className="fa-solid fa-building" aria-hidden="true" />
-                    <span>{lead.company}</span>
+                  <div className="company-text company-text-row">
+                    <span className="company-text-main">
+                      <i className="fa-solid fa-building" aria-hidden="true" />
+                      <span>{lead.company}</span>
+                    </span>
+                    {lead.location ? (
+                      <span className="location-chip-soft">
+                        <i className="fa-solid fa-location-dot" aria-hidden="true" />
+                        {lead.location}
+                      </span>
+                    ) : null}
                   </div>
-                  <LeadContactCardLines lead={lead} />
+                  <LeadContactCardLines lead={lead} showLocation={false} />
                 </div>
                 {!badge ? (
                   <span className={`badge ${replacement ? "badge-new-ap" : "badge-accent"}`}>
