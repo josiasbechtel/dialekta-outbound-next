@@ -114,13 +114,6 @@ function SalesLeadCard({ lead, isHot, onOpen, onDone }: SalesLeadCardProps) {
           {replacement ? "NEUE AP" : statusMeta[lead.status].label}
         </span>
       </div>
-      {isHot ? (
-        <div className="sales-card-hint">
-          <i className="fa-solid fa-arrow-left-long" aria-hidden="true" />
-          <span>Wischen zum Erledigen</span>
-          <i className="fa-solid fa-arrow-right-long" aria-hidden="true" />
-        </div>
-      ) : null}
     </article>
   );
 
@@ -157,8 +150,8 @@ export function SalesView() {
     <section className="view active">
       <div className="header-row">
         <SectionTitle
-          icon={vertriebTab === "archiv" ? "fa-solid fa-archive" : "fa-solid fa-user-tie"}
-          title={vertriebTab === "archiv" ? "Archiv" : "Menschliche Übergabe"}
+          icon={vertriebTab === "archiv" ? "fa-solid fa-archive" : "fa-solid fa-user-check"}
+          title={vertriebTab === "archiv" ? "Archiv" : "Für Vertrieb vorbereitet"}
         />
         <div className="header-action-row">
           {vertriebTab === "hot" ? (
@@ -180,13 +173,13 @@ export function SalesView() {
       <p className="sub-copy">
         {vertriebTab === "archiv"
           ? "Bereits erledigte oder entfernte Vertriebsleads."
-          : "Leads mit Interesse oder Rückruf-Wunsch. Links oder rechts wischen, um einen Lead als erledigt zu markieren."}
+          : "Leads mit Interesse oder Rückruf-Wunsch. Öffne einen Lead für Details oder wische die Karte, um ihn als erledigt zu markieren."}
       </p>
 
       {salesLeads.length === 0 ? (
         <EmptyState
           icon={vertriebTab === "archiv" ? "fa-regular fa-folder-open" : "fa-regular fa-face-smile"}
-          text={vertriebTab === "archiv" ? "Kein Vertriebsarchiv vorhanden." : "Aktuell keine heissen Leads für den Vertrieb."}
+          text={vertriebTab === "archiv" ? "Kein Vertriebsarchiv vorhanden." : "Aktuell keine vorbereiteten Leads für den Vertrieb."}
         />
       ) : (
         salesLeads.map((lead) => (
