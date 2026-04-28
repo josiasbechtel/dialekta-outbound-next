@@ -44,16 +44,22 @@ export default function RootLayout({
           .lead-card-links { border-top: 1px solid var(--border); padding-top: 12px; }
           .old-contact-inline { display: flex; flex-wrap: wrap; gap: 8px 16px; padding-top: 10px; margin-top: 4px; border-top: 1px dashed rgba(114,130,155,.3); font-size: .8rem; }
           .old-contact-inline span, .detail-old-contact-inline span { display: inline-flex; align-items: center; gap: 7px; text-decoration: line-through; }
-          .call-btn-action, .call-btn-action span, .call-btn-action i, .detail-call-button, .detail-call-button span, .detail-call-button i { color: #ffffff !important; }
           .badge-card-label, .queue-list-icon-btn, .group-list-btn { min-height: 42px !important; height: 42px !important; }
-          .group-list-btn, .queue-list-icon-btn { width: 42px !important; border-radius: 14px !important; }
-          .pill-row-tight { gap: 10px; align-items: center; }
+          .group-list-btn, .queue-list-icon-btn { width: 42px !important; border-radius: 14px !important; padding: 0 !important; }
+          .group-list-btn i, .queue-list-icon-btn i { font-size: 1.05rem !important; line-height: 1 !important; }
+          .pill-row, .pill-row-tight { gap: 10px; align-items: center !important; }
+          .list-info-tight { align-items: center !important; }
           .detail-header-company, .detail-company-row { flex-wrap: wrap; align-items: center; }
           .detail-primary-line { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; }
           .detail-primary-phone { color: var(--text-muted) !important; font-weight: 700; }
           .detail-old-contact-inline { display: flex; flex-wrap: wrap; gap: 8px 16px; padding: 12px; margin-bottom: 16px; border-radius: 12px; background: rgba(15,23,42,.02); border: 1px dashed rgba(114,130,155,.35); font-size: .82rem; }
-          .s-appointment, .s-interest, .s-callback { color: #fff !important; }
+          .btn-primary, .btn-primary *, .call-btn-action, .call-btn-action *, .detail-call-button, .detail-call-button *, .backup-btn, .backup-btn *, .crm-backup-btn, .crm-backup-btn *, .export-btn, .export-btn *, .dark-action, .dark-action * { color: #ffffff !important; }
+          .btn-primary i, .btn-primary span, .btn-primary svg, .call-btn-action i, .call-btn-action span, .backup-btn i, .backup-btn span { color: #ffffff !important; fill: #ffffff !important; }
+          .s-appointment, .s-appointment *, .s-interest, .s-interest *, .s-callback, .s-callback * { color: #ffffff !important; }
           .badge-new-ap { background: rgba(33,199,203,.14) !important; color: var(--primary) !important; border: 1px solid rgba(33,199,203,.4) !important; }
+          .list-item .btn-primary, .list-item .btn-primary *, .card .btn-primary, .card .btn-primary * { color: #ffffff !important; }
+          [class*="primary"], [class*="primary"] *, [class*="backup"], [class*="backup"] * { color: inherit; }
+          .btn-primary, .call-btn-action, .backup-button, .backup-button *, .btn-primary span, .btn-primary i { color: #ffffff !important; }
         `}</style>
       </head>
       <body className={inter.className}>{children}</body>
