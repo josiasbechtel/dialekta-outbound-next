@@ -15,7 +15,7 @@ function isDashboardLead(lead: LeadLike): lead is Lead {
   return "status" in lead;
 }
 
-export function hasReplacementContact(lead: LeadLike): lead is Lead {
+export function hasReplacementContact(lead: LeadLike): boolean {
   return Boolean(
     isDashboardLead(lead) &&
       lead.ansprechpartnerName &&
