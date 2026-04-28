@@ -40,16 +40,17 @@ export default function RootLayout({
           .company-text-row { display: flex; align-items: center; justify-content: flex-start; gap: 6px 8px; flex-wrap: wrap; }
           .company-text-main { display: inline-flex; align-items: center; gap: 8px; min-width: 0; }
           .location-chip-soft, .result-meta.location-meta, .detail-location-chip.compact, .call-context-pill.call-location { display: inline-flex !important; align-items: center; gap: 4px; min-height: 22px; padding: 2px 8px; border-radius: 999px; background: rgba(33,199,203,.10) !important; color: #0d7383 !important; border: 1px solid rgba(33,199,203,.22) !important; font-size: .58rem !important; font-weight: 800 !important; letter-spacing: .02em; text-transform: uppercase; white-space: nowrap; opacity: .92; }
-          .live-run-card .call-context-pill.call-location { background: rgba(255,255,255,.12) !important; color: #ffffff !important; border-color: rgba(255,255,255,.26) !important; opacity: .8; }
+          .live-run-card .call-context-pill.call-location, .live-run-card .call-context-pill.call-location * { background: rgba(33,199,203,.16) !important; color: #21c7cb !important; border-color: rgba(33,199,203,.35) !important; opacity: 1 !important; }
           .result-name-line { gap: 8px 14px; }
           .result-name, .detail-contact-name, .sheet-title, .big-number, .import-count, .list-info h3, .preview-lead-name { color: var(--text) !important; }
           .result-meta, .lead-card-links, .detail-primary-links a, .preview-lead-meta, .preview-lead-side, .sub-copy, .old-contact-inline, .detail-old-contact-inline { color: var(--text-muted) !important; }
           .lead-card-links { border-top: 1px solid var(--border); padding-top: 12px; }
           .old-contact-inline { display: flex; flex-wrap: wrap; gap: 8px 16px; padding-top: 10px; margin-top: 4px; border-top: 1px dashed rgba(114,130,155,.3); font-size: .8rem; }
           .old-contact-inline span, .detail-old-contact-inline span { display: inline-flex; align-items: center; gap: 7px; text-decoration: line-through; }
-          .badge-card-label, .queue-list-icon-btn, .group-list-btn { min-height: 42px !important; height: 42px !important; }
-          .group-list-btn, .queue-list-icon-btn { width: 42px !important; border-radius: 14px !important; padding: 0 !important; }
-          .group-list-btn i, .queue-list-icon-btn i { font-size: 1.05rem !important; line-height: 1 !important; }
+          .badge-card-label, .group-list-btn { min-height: 42px !important; height: 42px !important; }
+          .group-list-btn { width: 42px !important; border-radius: 14px !important; padding: 0 !important; }
+          .queue-list-icon-btn { min-height: 40px !important; height: 40px !important; width: 40px !important; border-radius: 14px !important; padding: 0 !important; }
+          .group-list-btn i, .queue-list-icon-btn i { font-size: 1rem !important; line-height: 1 !important; }
           .pill-row, .pill-row-tight { gap: 10px; align-items: center !important; }
           .list-info-tight { align-items: center !important; }
           .detail-header-company, .detail-company-row { flex-wrap: wrap; align-items: center; }
