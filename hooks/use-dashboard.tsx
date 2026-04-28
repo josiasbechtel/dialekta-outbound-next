@@ -100,9 +100,21 @@ function formatPlanInfo(plan: PlanForm) {
   return `${dateParts[2]}.${dateParts[1]}. ${plan.timeFrom}-${plan.timeTo}h`;
 }
 
+function isSimulationLead(lead: Lead | StagedLead) {
+  return lead.id.startsWith("simulation-") || lead.id.startsWith("demo-");
+}
+
+function prepareDemoLead(lead: StagedLead): StagedLead {
+  return {
+    ...lead,
+    id: `simulation-${lead.id || uid()}`,
+    notes: lead.notes ? `[Simulation] ${lead.notes}` : "[Simulation] Wird nicht in Supabase gespeichert.",
+  };
+}
+
 export function DashboardProvider({ children }: { children: React.ReactNode }) {
-  const [leads, setLeads] = useState<Lead[]>([]);
-  const [staged, setStaged] = useState<StagedLead[]>(initialStagedLeads);
+  const [leads, setLeads] = useState<Lead[]>(isSupabaseConfigured ? [] : initialStagedLeads.map(createLead));
+  const [staged, setStaged] = useState<StagedLead[]>(isSupabaseConfigured ? [] : initialStagedLeads);
   const [liveQueue, setLiveQueue] = useState<LiveQueue[]>([]);
   const [currentCallId, setCurrentCallId] = useState<string | null>(null);
   const [vertriebTab, setVertriebTab] = useState<VertriebTab>("hot");
@@ -153,7 +165,7 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
           const remoteState = await loadDashboardState();
           if (remoteState) {
             setLeads(remoteState.leads);
-            setStaged(remoteState.staged.length > 0 || remoteState.leads.length > 0 ? remoteState.staged : initialStagedLeads);
+            setStaged(remoteState.staged);
             setLiveQueue(remoteState.liveQueue);
             setCurrentCallId(remoteState.currentCallId);
           }
@@ -323,6 +335,8 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
   }, [leads]);
 
   const runSimulationTick = useCallback(() => {
+    if (isSupabaseConfigured) return;
+
     setLeads((currentLeads) => {
       let nextLeads = [...currentLeads];
 
@@ -406,19 +420,29 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
   }, [currentCallId]);
 
   useEffect(() => {
+    if (isSupabaseConfigured) return;
     if (liveQueue.length === 0) return;
     const timer = window.setInterval(runSimulationTick, 3500);
     return () => window.clearInterval(timer);
   }, [liveQueue.length, runSimulationTick]);
 
   useEffect(() => {
+    if (isSupabaseConfigured) return;
     if (liveQueue.length === 0 || currentCallId) return;
     const timer = window.setTimeout(() => runSimulationTick(), 150);
     return () => window.clearTimeout(timer);
   }, [currentCallId, liveQueue.length, runSimulationTick]);
 
   const loadDemoData = useCallback(() => {
-    setStaged((current) => [...current, ...buildDemoImportBatch()]);
+    const demoBatch = buildDemoImportBatch();
+
+    if (isSupabaseConfigured) {
+      setStaged((current) => [...current, ...demoBatch.map(prepareDemoLead)]);
+      showToast("Simulationsdaten nur lokal geladen", "fa-flask");
+      return;
+    }
+
+    setStaged((current) => [...current, ...demoBatch]);
     showToast("Frische Demo-Daten importiert", "fa-wand-magic-sparkles");
   }, [showToast]);
 
@@ -437,14 +461,32 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
   }, [showToast]);
 
   const acceptImport = useCallback(() => {
-    if (staged.length === 0) {
-      showToast("Keine Daten zum Übernehmen", "fa-circle-info");
+    const realStaged = staged.filter((lead) => !isSimulationLead(lead));
+    const simulationStaged = staged.filter(isSimulationLead);
+
+    if (realStaged.length === 0) {
+      showToast(
+        simulationStaged.length > 0
+          ? "Nur Simulationsdaten vorhanden. Diese werden nicht in Supabase übernommen."
+          : "Keine Daten zum Übernehmen",
+        "fa-circle-info",
+      );
       return;
     }
-    setLeads((current) => [...current, ...staged.map(createLead)]);
-    setStaged([]);
+
+    setLeads((current) => {
+      const existingIds = new Set(current.map((lead) => lead.id));
+      const importedLeads = realStaged.filter((lead) => !existingIds.has(lead.id)).map(createLead);
+      return [...current, ...importedLeads];
+    });
+    setStaged(simulationStaged);
     setIsListReviewOpen(false);
-    showToast("Daten ins System übernommen!", "fa-check");
+    showToast(
+      isSupabaseConfigured
+        ? "Daten übernommen. Echte Outbound-Calls werden über Supabase/n8n gestartet."
+        : "Daten ins System übernommen!",
+      "fa-check",
+    );
   }, [showToast, staged]);
 
   const openStagedList = useCallback(() => {
@@ -599,6 +641,25 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
   const startRun = useCallback(
     (ids: string[], branch: string, plan?: PlanForm) => {
       if (ids.length === 0) return;
+
+      if (isSupabaseConfigured) {
+        setLeads((current) =>
+          current.map((lead) =>
+            ids.includes(lead.id)
+              ? {
+                  ...lead,
+                  planInfo: plan ? formatPlanInfo(plan) : lead.planInfo,
+                  planTimestamp: plan ? new Date(`${plan.date}T${plan.timeFrom}`).getTime() : lead.planTimestamp,
+                }
+              : lead,
+          ),
+        );
+        showToast(
+          "Echter Outbound aktiv: Der Anrufstatus kommt von n8n/fonio, keine Simulation gestartet.",
+          "fa-phone",
+        );
+        return;
+      }
 
       setLeads((current) =>
         current.map((lead) => {
@@ -837,7 +898,7 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
 export function useDashboard() {
   const context = useContext(DashboardContext);
   if (!context) {
-    throw new Error("useDashboard must be used inside DashboardProvider");
+    throw new Error("useDashboard must be used within DashboardProvider");
   }
   return context;
 }
