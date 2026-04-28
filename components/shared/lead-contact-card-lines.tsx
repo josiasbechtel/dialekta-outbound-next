@@ -45,6 +45,10 @@ export function getLeadDisplayPhone(lead: LeadLike) {
   return lead.phone;
 }
 
+export function getLeadOriginalName(lead: LeadLike) {
+  return fullName(lead);
+}
+
 export function LeadContactCardLines({
   lead,
   showOldContact = true,
@@ -55,7 +59,8 @@ export function LeadContactCardLines({
   const replacement = hasReplacementContact(lead);
   const displayName = getLeadDisplayName(lead);
   const displayPhone = getLeadDisplayPhone(lead);
-  const originalName = fullName(lead) || "Bisheriger Kontakt";
+  const originalName = getLeadOriginalName(lead);
+  const showOldContactInfo = replacement && showOldContact && Boolean(originalName);
 
   return (
     <>
@@ -75,9 +80,30 @@ export function LeadContactCardLines({
         ) : null}
       </div>
 
+      {showOldContactInfo ? (
+        <div className="old-contact-inline" aria-label="Vorheriger Kontakt, nicht zuständig">
+          <span className="old-contact-person">
+            <i className="fa-solid fa-user-xmark" aria-hidden="true" />
+            <span>{originalName}</span>
+          </span>
+          {lead.phone ? (
+            <span className="old-contact-phone">
+              <i className="fa-solid fa-phone" aria-hidden="true" />
+              <span>{lead.phone}</span>
+            </span>
+          ) : null}
+          {lead.email ? (
+            <span className="old-contact-email">
+              <i className="fa-solid fa-envelope" aria-hidden="true" />
+              <span>{lead.email}</span>
+            </span>
+          ) : null}
+        </div>
+      ) : null}
+
       {showContactLinks && (lead.email || lead.website) ? (
         <div className="lead-card-links">
-          {!replacement && lead.email ? (
+          {lead.email && !replacement ? (
             <span>
               <i className="fa-solid fa-envelope" aria-hidden="true" />
               {lead.email}
@@ -90,62 +116,6 @@ export function LeadContactCardLines({
             </span>
           ) : null}
         </div>
-      ) : null}
-
-      {replacement && showOldContact ? (
-        <details
-          className="old-contact-disclosure"
-          style={{
-            marginTop: 12,
-            paddingTop: 10,
-            borderTop: "1px dashed var(--border)",
-            color: "var(--text-muted)",
-            fontSize: "0.78rem",
-          }}
-        >
-          <summary
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 8,
-              cursor: "pointer",
-              listStyle: "none",
-              fontWeight: 800,
-              color: "var(--primary)",
-            }}
-          >
-            <i className="fa-solid fa-circle-info" aria-hidden="true" />
-            Ursprüngliche Ansprechperson
-          </summary>
-          <div
-            style={{
-              marginTop: 9,
-              display: "flex",
-              justifyContent: "space-between",
-              gap: 12,
-              alignItems: "flex-start",
-            }}
-          >
-            <div style={{ display: "flex", flexDirection: "column", gap: 6, minWidth: 0 }}>
-              <span style={{ display: "inline-flex", alignItems: "center", gap: 7, textDecoration: "line-through", opacity: 0.72 }}>
-                <i className="fa-solid fa-user-xmark" aria-hidden="true" />
-                {originalName}
-              </span>
-              {lead.email ? (
-                <span style={{ display: "inline-flex", alignItems: "center", gap: 7, textDecoration: "line-through", opacity: 0.72 }}>
-                  <i className="fa-solid fa-envelope" aria-hidden="true" />
-                  {lead.email}
-                </span>
-              ) : null}
-            </div>
-            {lead.phone ? (
-              <span style={{ display: "inline-flex", alignItems: "center", gap: 7, textDecoration: "line-through", opacity: 0.72, whiteSpace: "nowrap" }}>
-                <i className="fa-solid fa-phone" aria-hidden="true" />
-                {lead.phone}
-              </span>
-            ) : null}
-          </div>
-        </details>
       ) : null}
     </>
   );
