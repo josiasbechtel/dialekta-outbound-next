@@ -14,7 +14,7 @@ import {
 } from "@/lib/dashboard-data";
 import { Lead, LiveQueue, TermineTab, VertriebTab } from "@/types/dashboard";
 import { isSupabaseConfigured } from "@/lib/supabase-client";
-import { loadDashboardState, saveDashboardState } from "@/lib/supabase-sync";
+import { loadDashboardState, saveDashboardState, startLeadOutboundManually } from "@/lib/supabase-sync";
 import { SetupLeadGroup, StagedLead } from "@/types/setup";
 
 type PlanForm = {
@@ -654,10 +654,23 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
               : lead,
           ),
         );
-        showToast(
-          "Echter Outbound aktiv: Der Anrufstatus kommt von n8n/fonio, keine Simulation gestartet.",
-          "fa-phone",
-        );
+        showToast("Outbound-Call wird gestartet...", "fa-phone");
+
+        void Promise.all(ids.map((id) => startLeadOutboundManually(id)))
+          .then(async () => {
+            const remoteState = await loadDashboardState();
+            if (remoteState) {
+              setLeads(remoteState.leads);
+              setStaged(remoteState.staged);
+              setLiveQueue(remoteState.liveQueue);
+              setCurrentCallId(remoteState.currentCallId);
+            }
+            showToast(ids.length === 1 ? "Outbound-Call gestartet" : `${ids.length} Outbound-Calls gestartet`, "fa-phone");
+          })
+          .catch((error) => {
+            console.error("Outbound-Call konnte nicht gestartet werden", error);
+            showToast("Outbound-Call konnte nicht gestartet werden", "fa-triangle-exclamation");
+          });
         return;
       }
 
