@@ -26,15 +26,15 @@ export function hasReplacementContact(lead: LeadLike): boolean {
 }
 
 export function getLeadDisplayName(lead: LeadLike) {
-  if (hasReplacementContact(lead)) {
-    return lead.ansprechpartnerName;
+  if (isDashboardLead(lead) && hasReplacementContact(lead)) {
+    return lead.ansprechpartnerName || `${lead.firstName} ${lead.lastName}`.trim();
   }
 
   return `${lead.firstName} ${lead.lastName}`.trim();
 }
 
 export function getLeadDisplayPhone(lead: LeadLike) {
-  if (hasReplacementContact(lead)) {
+  if (isDashboardLead(lead) && hasReplacementContact(lead)) {
     return lead.ansprechpartnerPhone || lead.phone;
   }
 
