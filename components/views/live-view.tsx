@@ -11,6 +11,13 @@ function formatPlanDate(value: string | null) {
   return `${day}.${month}.`;
 }
 
+function queueLabel(branch: string) {
+  const lower = branch.toLowerCase();
+  if (lower.includes("2. versuch")) return branch;
+  if (lower.includes("retry")) return branch.replace(/retry/gi, "2. Versuch");
+  return branch;
+}
+
 export function LiveView() {
   const { liveQueue, leads, currentCallId, openQueuePreview, openPlanForQueue } = useDashboard();
 
@@ -45,10 +52,10 @@ export function LiveView() {
           const activeLead = leads.find((lead) => lead.id === currentCallId && queue.ids.includes(lead.id));
           const isActive = Boolean(isRunnable && activeLead);
           const displayName = activeLead?.ansprechpartnerName ||
-            (activeLead ? `${activeLead.firstName} ${activeLead.lastName}` : "");
+            (activeLead ? `${activeLead.firstName} ${activeLead.lastName}`.trim() || "Allgemeiner Kontakt" : "");
           const displayPhone = activeLead?.ansprechpartnerPhone || activeLead?.phone || "";
           const previousContact = activeLead?.ansprechpartnerName
-            ? `${activeLead.firstName} ${activeLead.lastName}`
+            ? `${activeLead.firstName} ${activeLead.lastName}`.trim()
             : "";
 
           return (
@@ -59,12 +66,10 @@ export function LiveView() {
               <div className="run-header">
                 <div className="run-header-top">
                   <div className="run-title-block">
-                    <span className="run-kicker">
-                      {isActive ? "Aktuelle Kampagne" : "Kampagne in Warteschlange"}
-                    </span>
+                    <span className="run-kicker">AKTUELLE KAMPAGNE</span>
                     <div className="run-title">
                       <i className="fa-solid fa-layer-group" aria-hidden="true" />
-                      <span>{queue.branch}</span>
+                      <span>{queueLabel(queue.branch)}</span>
                     </div>
                   </div>
                   <div className="run-header-actions">
@@ -115,19 +120,19 @@ export function LiveView() {
                         <i className="fa-regular fa-user" aria-hidden="true" />
                         {displayName}
                       </span>
-                      <span>
-                        <i className="fa-solid fa-phone" aria-hidden="true" />
-                        {displayPhone}
-                      </span>
+                      {displayPhone ? (
+                        <span>
+                          <i className="fa-solid fa-phone" aria-hidden="true" />
+                          {displayPhone}
+                        </span>
+                      ) : null}
                     </div>
                     {previousContact ? (
-                      <div className="call-previous-contact">Zuvor: {previousContact} (nicht zuständig)</div>
+                      <details className="call-previous-contact">
+                        <summary>Ursprüngliche Ansprechperson</summary>
+                        <span>{previousContact} war nicht zuständig</span>
+                      </details>
                     ) : null}
-
-                    <a className="call-btn-action" href={`tel:${displayPhone.replace(/\s/g, "")}`}>
-                      <i className="fa-solid fa-phone" aria-hidden="true" />
-                      <span>{displayPhone}</span>
-                    </a>
                   </div>
                 ) : queue.isPlanned && queue.planDate ? (
                   <button className="queue-plan-btn" type="button" onClick={() => openPlanForQueue(queue.id)}>
