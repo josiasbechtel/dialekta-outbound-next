@@ -36,19 +36,23 @@ export function ResultsView() {
               >
                 <div className="result-topline">
                   <div>
-                    <div className="company-text">
-                      <i className="fa-solid fa-building" aria-hidden="true" />
-                      <span>{lead.company}</span>
+                    <div className="company-text company-text-row">
+                      <span className="company-text-main">
+                        <i className="fa-solid fa-building" aria-hidden="true" />
+                        <span>{lead.company}</span>
+                      </span>
+                      {lead.location ? (
+                        <span className="location-chip-soft">
+                          <i className="fa-solid fa-location-dot" aria-hidden="true" />
+                          {lead.location}
+                        </span>
+                      ) : null}
                     </div>
-                    <LeadContactCardLines lead={lead} />
+                    <LeadContactCardLines lead={lead} showLocation={false} />
                   </div>
-                  {replacement ? (
-  <span className="badge badge-new-ap">NEUE AP</span>
-) : (
-  <span className={`badge ${statusMeta[lead.status].className}`}>
-    {statusMeta[lead.status].label}
-  </span>
-)}
+                  <span className={`badge ${replacement ? "badge-new-ap" : statusMeta[lead.status].className}`}>
+                    {replacement ? "NEUE AP" : statusMeta[lead.status].label}
+                  </span>
                 </div>
                 {lead.summary ? <p className="result-summary">{lead.summary}</p> : null}
               </article>
