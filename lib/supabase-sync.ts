@@ -10,6 +10,11 @@ type DashboardSnapshot = {
 };
 
 const DEFAULT_IMPORT_BATCH_ID = "00000000-0000-0000-0000-000000000001";
+const SIMULATION_PREFIXES = ["simulation-", "demo-"];
+
+function isSimulationId(id: string) {
+  return SIMULATION_PREFIXES.some((prefix) => id.startsWith(prefix));
+}
 
 function toStagedRow(lead: StagedLead) {
   return {
@@ -77,8 +82,11 @@ function fromLeadRow(row: any): Lead {
   };
 }
 
-async function clearTable(table: string) {
-  const result = await supabase!.from(table).delete().not("id", "is", null);
+async function deleteMissingRows(table: string, existingIds: string[], currentIds: string[]) {
+  const idsToDelete = existingIds.filter((id) => !currentIds.includes(id));
+  if (idsToDelete.length === 0) return;
+
+  const result = await supabase!.from(table).delete().in("id", idsToDelete);
   if (result.error) throw result.error;
 }
 
@@ -136,39 +144,30 @@ export async function saveDashboardState(snapshot: DashboardSnapshot) {
 
   await ensureImportBatch();
 
-  await clearTable("call_run_leads");
-  await clearTable("call_runs");
-  await clearTable("appointments");
-  await clearTable("leads");
-  await clearTable("staged_leads");
+  const stagedToPersist = snapshot.staged.filter((lead) => !isSimulationId(lead.id));
+  const leadsToPersist = snapshot.leads.filter((lead) => !isSimulationId(lead.id));
 
-  if (snapshot.staged.length > 0) {
-    const result = await supabase.from("staged_leads").insert(snapshot.staged.map(toStagedRow));
+  const existingStagedResult = await supabase.from("staged_leads").select("id");
+  if (existingStagedResult.error) throw existingStagedResult.error;
+
+  await deleteMissingRows(
+    "staged_leads",
+    (existingStagedResult.data ?? []).map((row: any) => row.id),
+    stagedToPersist.map((lead) => lead.id),
+  );
+
+  if (stagedToPersist.length > 0) {
+    const result = await supabase.from("staged_leads").upsert(stagedToPersist.map(toStagedRow));
     if (result.error) throw result.error;
   }
 
-  if (snapshot.leads.length > 0) {
-    const result = await supabase.from("leads").insert(snapshot.leads.map(toLeadRow));
-    if (result.error) throw result.error;
-  }
-
-  const appointmentRows = snapshot.leads
-    .filter((lead) => lead.status === "appointment" && lead.appointmentDate)
-    .map((lead) => ({
-      id: `appointment-${lead.id}`,
-      lead_id: lead.id,
-      appointment_date: lead.appointmentDate,
-      context: lead.appointmentContext,
-      summary: lead.summary,
-    }));
-
-  if (appointmentRows.length > 0) {
-    const result = await supabase.from("appointments").insert(appointmentRows);
+  if (leadsToPersist.length > 0) {
+    const result = await supabase.from("leads").upsert(leadsToPersist.map(toLeadRow));
     if (result.error) throw result.error;
   }
 
   if (snapshot.liveQueue.length > 0) {
-    const runResult = await supabase.from("call_runs").insert(
+    const runResult = await supabase.from("call_runs").upsert(
       snapshot.liveQueue.map((queue) => ({
         id: queue.id,
         branch: queue.branch,
@@ -182,33 +181,34 @@ export async function saveDashboardState(snapshot: DashboardSnapshot) {
       })),
     );
     if (runResult.error) throw runResult.error;
+
+    const junctionRows = snapshot.liveQueue.flatMap((queue) =>
+      queue.ids.map((leadId, position) => ({
+        id: `${queue.id}-${leadId}`,
+        call_run_id: queue.id,
+        lead_id: leadId,
+        position,
+      })),
+    );
+
+    if (junctionRows.length > 0) {
+      const result = await supabase.from("call_run_leads").upsert(junctionRows);
+      if (result.error) throw result.error;
+    }
   }
 
-  const junctionRows = snapshot.liveQueue.flatMap((queue) =>
-    queue.ids.map((leadId, position) => ({
-      id: `${queue.id}-${leadId}`,
-      call_run_id: queue.id,
-      lead_id: leadId,
-      position,
-    })),
-  );
+  const appointmentRows = leadsToPersist
+    .filter((lead) => lead.status === "appointment" && lead.appointmentDate)
+    .map((lead) => ({
+      id: `appointment-${lead.id}`,
+      lead_id: lead.id,
+      appointment_date: lead.appointmentDate,
+      context: lead.appointmentContext,
+      summary: lead.summary,
+    }));
 
-  if (junctionRows.length > 0) {
-    const result = await supabase.from("call_run_leads").insert(junctionRows);
-    if (result.error) throw result.error;
-  }
-
-  const eventRows = snapshot.leads.map((lead) => ({
-    lead_id: lead.id,
-    event_type: "snapshot",
-    old_status: null,
-    new_status: lead.status,
-    note: "Automatischer Dashboard-Snapshot",
-    payload: lead,
-  }));
-
-  if (eventRows.length > 0) {
-    const result = await supabase.from("lead_events").insert(eventRows);
+  if (appointmentRows.length > 0) {
+    const result = await supabase.from("appointments").upsert(appointmentRows);
     if (result.error) throw result.error;
   }
 }
