@@ -20,11 +20,6 @@ export function AppointmentsView() {
           <div className={`toggle-sm ${termineTab === "archiv" ? "on" : ""}`} />
         </button>
       </div>
-      <p className="sub-copy">
-        {termineTab === "archiv"
-          ? "Vergangene Termine."
-          : "Durch die KI gebuchte Termine für die Zukunft."}
-      </p>
 
       {appointmentLeads.length === 0 ? (
         <EmptyState
@@ -42,11 +37,19 @@ export function AppointmentsView() {
             >
               <div className="result-topline">
                 <div>
-                  <div className="company-text">
-                    <i className="fa-solid fa-building" aria-hidden="true" />
-                    <span>{lead.company}</span>
+                  <div className="company-text company-text-row">
+                    <span className="company-text-main">
+                      <i className="fa-solid fa-building" aria-hidden="true" />
+                      <span>{lead.company}</span>
+                    </span>
+                    {lead.location ? (
+                      <span className="location-chip-soft">
+                        <i className="fa-solid fa-location-dot" aria-hidden="true" />
+                        {lead.location}
+                      </span>
+                    ) : null}
                   </div>
-                  <LeadContactCardLines lead={lead} />
+                  <LeadContactCardLines lead={lead} showLocation={false} />
                   {lead.appointmentDate ? (
                     <div className="appointment-time">
                       <i className="fa-regular fa-clock" aria-hidden="true" />
