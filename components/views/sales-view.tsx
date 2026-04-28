@@ -104,11 +104,23 @@ function SalesLeadCard({ lead, isHot, onOpen, onDone }: SalesLeadCardProps) {
     >
       <div className="result-topline">
         <div>
-          <div className="company-text">
-            <i className="fa-solid fa-building" aria-hidden="true" />
-            <span>{lead.company}</span>
+          <div className="company-text company-text-row">
+            <span className="company-text-main">
+              <i className="fa-solid fa-building" aria-hidden="true" />
+              <span>{lead.company}</span>
+            </span>
+            {lead.location ? (
+              <span className="location-chip-soft">
+                <i className="fa-solid fa-location-dot" aria-hidden="true" />
+                {lead.location}
+              </span>
+            ) : null}
           </div>
-          <LeadContactCardLines lead={lead} strikeName={lead.status === "sales_deleted"} />
+          <LeadContactCardLines
+            lead={lead}
+            strikeName={lead.status === "sales_deleted"}
+            showLocation={false}
+          />
         </div>
         <span className={`badge ${replacement ? "badge-new-ap" : statusMeta[lead.status].className}`}>
           {replacement ? "NEUE AP" : statusMeta[lead.status].label}
@@ -137,29 +149,16 @@ function SalesLeadCard({ lead, isHot, onOpen, onDone }: SalesLeadCardProps) {
 }
 
 export function SalesView() {
-  const {
-    salesLeads,
-    vertriebTab,
-    toggleVertriebTab,
-    exportSalesCsv,
-    openDetail,
-    markSalesDone,
-  } = useDashboard();
+  const { salesLeads, vertriebTab, toggleVertriebTab, openDetail, markSalesDone } = useDashboard();
 
   return (
     <section className="view active">
       <div className="header-row">
         <SectionTitle
           icon={vertriebTab === "archiv" ? "fa-solid fa-archive" : "fa-solid fa-user-check"}
-          title={vertriebTab === "archiv" ? "Archiv" : "Für Vertrieb vorbereitet"}
+          title={vertriebTab === "archiv" ? "Archiv" : "Heisse Leads"}
         />
         <div className="header-action-row">
-          {vertriebTab === "hot" ? (
-            <button className="btn btn-outline compact-btn" type="button" onClick={exportSalesCsv}>
-              <i className="fa-solid fa-download" aria-hidden="true" />
-              CSV
-            </button>
-          ) : null}
           <button
             className={`fbb-toggle ${vertriebTab === "archiv" ? "active" : ""}`}
             type="button"
@@ -170,16 +169,11 @@ export function SalesView() {
           </button>
         </div>
       </div>
-      <p className="sub-copy">
-        {vertriebTab === "archiv"
-          ? "Bereits erledigte oder entfernte Vertriebsleads."
-          : "Leads mit Interesse oder Rückruf-Wunsch. Öffne einen Lead für Details oder wische die Karte, um ihn als erledigt zu markieren."}
-      </p>
 
       {salesLeads.length === 0 ? (
         <EmptyState
           icon={vertriebTab === "archiv" ? "fa-regular fa-folder-open" : "fa-regular fa-face-smile"}
-          text={vertriebTab === "archiv" ? "Kein Vertriebsarchiv vorhanden." : "Aktuell keine vorbereiteten Leads für den Vertrieb."}
+          text={vertriebTab === "archiv" ? "Kein Vertriebsarchiv vorhanden." : "Aktuell keine heissen Leads vorhanden."}
         />
       ) : (
         salesLeads.map((lead) => (
