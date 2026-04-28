@@ -27,41 +27,88 @@ export function LeadDetailSheet({ isOpen, lead, onClose }: LeadDetailSheetProps)
       : `https://${lead.website}`
     : null;
 
+  const headerBadge = hasReplacementContact ? (
+    <span className="badge badge-new-ap detail-header-badge">NEUE ANSPRECHPERSON</span>
+  ) : (
+    <span className={`badge ${statusMeta[lead.status].className} detail-header-badge`}>{statusMeta[lead.status].label}</span>
+  );
+
   return (
     <SheetOverlay
       isOpen={isOpen}
-      title={displayName}
+      title={lead.branch}
       onClose={onClose}
+      headerAside={headerBadge}
       footer={
-        <a className="call-btn-action" href={`tel:${phoneToUse.replace(/\s/g, "")}`}>
-          <i className="fa-solid fa-phone" aria-hidden="true" />
-          <span>{phoneToUse}</span>
-        </a>
+        phoneToUse ? (
+          <a className="call-btn-action" href={`tel:${phoneToUse.replace(/\s/g, "")}`}>
+            <i className="fa-solid fa-phone" aria-hidden="true" />
+            <span>{phoneToUse}</span>
+          </a>
+        ) : null
       }
     >
-      <div className="detail-header-company">
-        <i className="fa-solid fa-building" aria-hidden="true" />
-        <span>{lead.company || "Firma unbekannt"}</span>
-      </div>
+      <div className="detail-contact-card">
+        <div className="detail-card-top">
+          <div className="detail-card-heading">
+            <div className="detail-header-company">
+              <i className="fa-solid fa-building" aria-hidden="true" />
+              <span>{lead.company || "Firma unbekannt"}</span>
+            </div>
 
-      <div className="detail-pill-row">
-        <span className={`badge ${hasReplacementContact ? "badge-new-ap" : statusMeta[lead.status].className}`}>
-          {hasReplacementContact ? "NEUE AP" : statusMeta[lead.status].label || "OFFEN"}
-        </span>
-        <span className="badge detail-branch-pill">
-          <i className="fa-solid fa-tag" aria-hidden="true" />
-          {lead.branch}
-        </span>
-        {lead.location ? (
-          <a
-            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${lead.company} ${lead.location}`)}`}
-            target="_blank"
-            className="badge detail-location-pill"
-          >
-            <i className="fa-solid fa-location-dot" aria-hidden="true" />
-            <span>{lead.location}</span>
-            <i className="fa-solid fa-arrow-up-right-from-square detail-location-external" aria-hidden="true" />
-          </a>
+            <div className="detail-contact-main-line">
+              <span className="detail-contact-name">{displayName}</span>
+              {phoneToUse ? (
+                <a className="detail-contact-phone-inline" href={`tel:${phoneToUse.replace(/\s/g, "")}`}>
+                  <i className="fa-solid fa-phone" aria-hidden="true" />
+                  <span>{phoneToUse}</span>
+                </a>
+              ) : null}
+            </div>
+          </div>
+
+          {lead.location ? (
+            <a
+              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${lead.company} ${lead.location}`)}`}
+              target="_blank"
+              className="detail-location-chip"
+            >
+              <i className="fa-solid fa-location-dot" aria-hidden="true" />
+              <span>{lead.location}</span>
+            </a>
+          ) : null}
+        </div>
+
+        {lead.email || websiteUrl ? (
+          <div className="detail-primary-links">
+            {lead.email ? (
+              <a href={`mailto:${lead.email}`}>
+                <i className="fa-solid fa-envelope" aria-hidden="true" />
+                <span>{lead.email}</span>
+              </a>
+            ) : null}
+            {websiteUrl ? (
+              <a href={websiteUrl} target="_blank">
+                <i className="fa-solid fa-globe" aria-hidden="true" />
+                <span>{lead.website}</span>
+              </a>
+            ) : null}
+          </div>
+        ) : null}
+
+        {hasReplacementContact ? (
+          <div className="detail-old-contact-inline" aria-label="Vorheriger Kontakt, nicht zuständig">
+            <div className="detail-old-contact-person">
+              <i className="fa-solid fa-user-xmark" aria-hidden="true" />
+              <span>{oldContactName}</span>
+            </div>
+            {lead.phone ? (
+              <div className="detail-old-contact-phone">
+                <i className="fa-solid fa-phone" aria-hidden="true" />
+                <span>{lead.phone}</span>
+              </div>
+            ) : null}
+          </div>
         ) : null}
       </div>
 
@@ -83,48 +130,6 @@ export function LeadDetailSheet({ isOpen, lead, onClose }: LeadDetailSheetProps)
           </label>
           <div className="val detail-long-text">
             <span>{lead.summary}</span>
-          </div>
-        </div>
-      ) : null}
-
-      {lead.email && !hasReplacementContact ? (
-        <div className="detail-block detail-contact-link-block">
-          <a className="val" href={`mailto:${lead.email}`}>
-            <i className="fa-solid fa-envelope" aria-hidden="true" />
-            <span>{lead.email}</span>
-          </a>
-        </div>
-      ) : null}
-
-      {websiteUrl ? (
-        <div className="detail-block detail-contact-link-block">
-          <a className="val" href={websiteUrl} target="_blank">
-            <i className="fa-solid fa-globe" aria-hidden="true" />
-            <span>{lead.website}</span>
-          </a>
-        </div>
-      ) : null}
-
-      {hasReplacementContact ? (
-        <div className="detail-block detail-old-contact-block">
-          <label>Vorheriger Kontakt (Nicht zuständig)</label>
-          <div className="detail-old-contact">
-            <div className="detail-old-contact-name">
-              <i className="fa-solid fa-user-xmark" aria-hidden="true" />
-              <span>{oldContactName}</span>
-            </div>
-            {lead.phone ? (
-              <div className="detail-old-contact-phone">
-                <i className="fa-solid fa-phone" aria-hidden="true" />
-                <span>{lead.phone}</span>
-              </div>
-            ) : null}
-            {lead.email ? (
-              <div className="detail-old-contact-email">
-                <i className="fa-solid fa-envelope" aria-hidden="true" />
-                <span>{lead.email}</span>
-              </div>
-            ) : null}
           </div>
         </div>
       ) : null}

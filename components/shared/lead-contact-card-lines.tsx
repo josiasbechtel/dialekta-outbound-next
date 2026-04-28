@@ -15,7 +15,7 @@ function isDashboardLead(lead: LeadLike): lead is Lead {
   return "status" in lead;
 }
 
-export function hasReplacementContact(lead: LeadLike): boolean {
+export function hasReplacementContact(lead: LeadLike): lead is Lead {
   return Boolean(
     isDashboardLead(lead) &&
       lead.ansprechpartnerName &&
@@ -26,15 +26,15 @@ export function hasReplacementContact(lead: LeadLike): boolean {
 }
 
 export function getLeadDisplayName(lead: LeadLike) {
-  if (isDashboardLead(lead) && hasReplacementContact(lead)) {
-    return lead.ansprechpartnerName || `${lead.firstName} ${lead.lastName}`.trim();
+  if (hasReplacementContact(lead)) {
+    return lead.ansprechpartnerName;
   }
 
   return `${lead.firstName} ${lead.lastName}`.trim();
 }
 
 export function getLeadDisplayPhone(lead: LeadLike) {
-  if (isDashboardLead(lead) && hasReplacementContact(lead)) {
+  if (hasReplacementContact(lead)) {
     return lead.ansprechpartnerPhone || lead.phone;
   }
 
@@ -71,32 +71,9 @@ export function LeadContactCardLines({
         ) : null}
       </div>
 
-      {replacement && showOldContact ? (
-        <div className="old-contact-inline" aria-label="Vorheriger Kontakt, nicht zuständig">
-          <div className="old-contact-main">
-            <div className="old-contact-person">
-              <i className="fa-solid fa-user-xmark" aria-hidden="true" />
-              <span>{originalName}</span>
-            </div>
-            {lead.email ? (
-              <div className="old-contact-email">
-                <i className="fa-solid fa-envelope" aria-hidden="true" />
-                <span>{lead.email}</span>
-              </div>
-            ) : null}
-          </div>
-          {lead.phone ? (
-            <div className="old-contact-phone">
-              <i className="fa-solid fa-phone" aria-hidden="true" />
-              <span>{lead.phone}</span>
-            </div>
-          ) : null}
-        </div>
-      ) : null}
-
       {showContactLinks && (lead.email || lead.website) ? (
         <div className="lead-card-links">
-          {lead.email && !replacement ? (
+          {lead.email ? (
             <span>
               <i className="fa-solid fa-envelope" aria-hidden="true" />
               {lead.email}
@@ -107,6 +84,21 @@ export function LeadContactCardLines({
               <i className="fa-solid fa-globe" aria-hidden="true" />
               {lead.website}
             </span>
+          ) : null}
+        </div>
+      ) : null}
+
+      {replacement && showOldContact ? (
+        <div className="old-contact-inline" aria-label="Vorheriger Kontakt, nicht zuständig">
+          <div className="old-contact-person">
+            <i className="fa-solid fa-user-xmark" aria-hidden="true" />
+            <span>{originalName}</span>
+          </div>
+          {lead.phone ? (
+            <div className="old-contact-phone">
+              <i className="fa-solid fa-phone" aria-hidden="true" />
+              <span>{lead.phone}</span>
+            </div>
           ) : null}
         </div>
       ) : null}

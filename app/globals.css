@@ -2065,3 +2065,291 @@ textarea.input:focus {
   text-decoration: none !important;
   opacity: 1 !important;
 }
+
+
+/* Runde 4: Detail-Sheet und Farbsystem naeher an v8-Referenz */
+:root {
+  --primary: #0a5677;
+  --primary-hover: #084763;
+  --accent: #09cfd0;
+  --text: #142544;
+  --text-muted: #74839c;
+  --border: #d7e0ea;
+}
+
+body,
+.app,
+.quick-action-card,
+.card,
+.list-item,
+.result-item,
+.analytics-tile,
+.sheet {
+  color: var(--text);
+}
+
+.sheet-header-row {
+  align-items: center;
+  gap: 12px;
+  padding-right: 48px;
+}
+
+.sheet-title {
+  color: var(--text);
+  flex: 1;
+  min-width: 0;
+}
+
+.sheet-header-aside {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.detail-header-badge {
+  min-height: 40px;
+  padding: 0 16px;
+  border-radius: 14px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+}
+
+.company-text,
+.company-text i,
+.detail-header-company,
+.detail-header-company i {
+  color: #10aeb0;
+}
+
+.company-text,
+.detail-header-company {
+  font-weight: 800;
+}
+
+.result-name,
+.sheet-title,
+.call-btn-action,
+.list-item h3,
+.quick-action-card {
+  color: var(--text);
+}
+
+.badge-new-ap {
+  background: rgba(9, 207, 208, 0.1);
+  color: var(--primary);
+  border: 1px solid var(--accent);
+}
+
+.lead-card-links {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.old-contact-inline {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  color: var(--text-muted);
+  font-size: 0.76rem;
+}
+
+.old-contact-inline .old-contact-person,
+.old-contact-inline .old-contact-phone {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  text-decoration: line-through;
+  opacity: 0.72;
+}
+
+.old-contact-inline .old-contact-person {
+  flex: 1;
+}
+
+.old-contact-inline .old-contact-person span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.old-contact-inline .old-contact-phone {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.detail-contact-card {
+  margin-bottom: 18px;
+  padding: 18px 18px 16px;
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+  box-shadow: var(--shadow);
+}
+
+.detail-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.detail-card-heading {
+  flex: 1;
+  min-width: 0;
+}
+
+.detail-header-company {
+  margin: 0 0 10px;
+  font-size: 0.95rem;
+  gap: 8px;
+}
+
+.detail-contact-main-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 10px;
+}
+
+.detail-contact-name {
+  font-size: 1.15rem;
+  line-height: 1.25;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+
+.detail-contact-phone-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-muted);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.detail-contact-phone-inline i {
+  opacity: 0.78;
+}
+
+.detail-location-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 14px;
+  min-height: 40px;
+  border-radius: 14px;
+  background: var(--primary);
+  color: #ffffff;
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+.detail-primary-links {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.detail-primary-links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.detail-primary-links i {
+  width: 20px;
+  text-align: center;
+}
+
+.detail-old-contact-inline {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px dashed var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+}
+
+.detail-old-contact-inline .detail-old-contact-person,
+.detail-old-contact-inline .detail-old-contact-phone {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  text-decoration: line-through;
+  opacity: 0.72;
+}
+
+.detail-old-contact-inline .detail-old-contact-person {
+  flex: 1;
+}
+
+.detail-old-contact-inline .detail-old-contact-person span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.detail-old-contact-inline .detail-old-contact-phone {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+@media (max-width: 540px) {
+  .sheet-header-row {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    padding-right: 44px;
+  }
+
+  .sheet-header-aside {
+    order: 3;
+  }
+
+  .detail-header-badge {
+    min-height: 36px;
+    padding: 0 12px;
+    font-size: 0.7rem;
+  }
+
+  .detail-card-top,
+  .detail-old-contact-inline,
+  .old-contact-inline {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .detail-location-chip,
+  .detail-old-contact-inline .detail-old-contact-phone,
+  .old-contact-inline .old-contact-phone {
+    margin-left: 0;
+  }
+}
