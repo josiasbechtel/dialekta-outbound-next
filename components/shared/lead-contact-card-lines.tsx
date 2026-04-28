@@ -15,7 +15,7 @@ function isDashboardLead(lead: LeadLike): lead is Lead {
   return "status" in lead;
 }
 
-export function hasReplacementContact(lead: LeadLike): lead is Lead {
+export function hasReplacementContact(lead: LeadLike): boolean {
   return Boolean(
     isDashboardLead(lead) &&
       lead.ansprechpartnerName &&
@@ -26,15 +26,15 @@ export function hasReplacementContact(lead: LeadLike): lead is Lead {
 }
 
 export function getLeadDisplayName(lead: LeadLike) {
-  if (hasReplacementContact(lead)) {
-    return lead.ansprechpartnerName;
+  if (hasReplacementContact(lead) && isDashboardLead(lead)) {
+    return lead.ansprechpartnerName || `${lead.firstName} ${lead.lastName}`.trim();
   }
 
   return `${lead.firstName} ${lead.lastName}`.trim();
 }
 
 export function getLeadDisplayPhone(lead: LeadLike) {
-  if (hasReplacementContact(lead)) {
+  if (hasReplacementContact(lead) && isDashboardLead(lead)) {
     return lead.ansprechpartnerPhone || lead.phone;
   }
 
