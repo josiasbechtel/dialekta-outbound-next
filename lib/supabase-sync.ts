@@ -101,6 +101,17 @@ async function ensureImportBatch() {
   if (result.error) throw result.error;
 }
 
+export async function startLeadOutboundManually(leadId: string) {
+  if (!supabase) return null;
+
+  const result = await supabase.rpc("start_lead_outbound_manually", {
+    p_lead_id: leadId,
+  });
+
+  if (result.error) throw result.error;
+  return result.data as number | null;
+}
+
 export async function loadDashboardState(): Promise<DashboardSnapshot | null> {
   if (!supabase) return null;
 
