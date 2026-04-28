@@ -49,11 +49,27 @@ export function AppointmentsView() {
                       </span>
                     ) : null}
                   </div>
-                  <LeadContactCardLines lead={lead} showLocation={false} />
+                  <LeadContactCardLines lead={lead} showLocation={false} showContactLinks={false} />
                   {lead.appointmentDate ? (
-                    <div className="appointment-time">
+                    <div className="appointment-time appointment-time-highlight">
                       <i className="fa-regular fa-clock" aria-hidden="true" />
                       {lead.appointmentDate}
+                    </div>
+                  ) : null}
+                  {(lead.email || lead.website) ? (
+                    <div className="lead-card-links appointment-links">
+                      {lead.email ? (
+                        <span>
+                          <i className="fa-solid fa-envelope" aria-hidden="true" />
+                          {lead.email}
+                        </span>
+                      ) : null}
+                      {lead.website ? (
+                        <span>
+                          <i className="fa-solid fa-globe" aria-hidden="true" />
+                          {lead.website}
+                        </span>
+                      ) : null}
                     </div>
                   ) : null}
                 </div>
