@@ -51,7 +51,17 @@ export function AppShell({ children }: AppShellProps) {
 
         <main className="main-content">{children}</main>
 
-        <nav className="bottom-nav">
+        <nav
+          className="bottom-nav"
+          style={{
+            position: "absolute",
+            left: 0,
+            right: 0,
+            bottom: 0,
+            zIndex: 40,
+            flexShrink: 0,
+          }}
+        >
           {navItems.map((item) => {
             const isActive = pathname === item.href;
 
