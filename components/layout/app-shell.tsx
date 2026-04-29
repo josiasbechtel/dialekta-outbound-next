@@ -54,11 +54,14 @@ export function AppShell({ children }: AppShellProps) {
         <nav
           className="bottom-nav"
           style={{
-            position: "absolute",
-            left: 0,
-            right: 0,
+            position: "fixed",
+            left: "50%",
+            right: "auto",
             bottom: 0,
-            zIndex: 40,
+            width: "100%",
+            maxWidth: "480px",
+            transform: "translateX(-50%)",
+            zIndex: 90,
             flexShrink: 0,
           }}
         >
