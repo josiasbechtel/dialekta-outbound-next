@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { ReactNode, useEffect } from "react";
+import { ReactNode, useEffect, useRef } from "react";
 import { useDashboard } from "@/hooks/use-dashboard";
 import { navItems } from "@/lib/config/navigation";
 
@@ -15,9 +15,18 @@ export function AppShell({ children }: AppShellProps) {
   const router = useRouter();
   const { loadDemoData, resetSystem, leads, upcomingAppointments, currentCallId, liveQueue } = useDashboard();
   const salesBadgeCount = leads.filter((lead) => ["interest", "callback"].includes(lead.status)).length;
+  const lastAutoRedirectCallIdRef = useRef<string | null>(null);
 
   useEffect(() => {
-    if (currentCallId && liveQueue.length > 0 && pathname !== "/live") {
+    if (!currentCallId || liveQueue.length === 0) {
+      lastAutoRedirectCallIdRef.current = null;
+      return;
+    }
+
+    if (lastAutoRedirectCallIdRef.current === currentCallId) return;
+
+    lastAutoRedirectCallIdRef.current = currentCallId;
+    if (pathname !== "/live") {
       router.push("/live");
     }
   }, [currentCallId, liveQueue.length, pathname, router]);
