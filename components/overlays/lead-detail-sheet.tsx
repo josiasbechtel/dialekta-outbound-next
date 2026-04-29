@@ -72,28 +72,12 @@ export function LeadDetailSheet({ isOpen, lead, onClose }: LeadDetailSheetProps)
       onClose={onClose}
       headerAside={headerBadge}
       footer={
-        <div className="detail-footer-actions" style={{ display: "flex", gap: "0.75rem", width: "100%" }}>
-          <button
-            className="btn-secondary"
-            type="button"
-            onClick={handleDelete}
-            disabled={isDeleting}
-            title="Lead löschen"
-            style={{ flex: "0 0 auto" }}
-          >
-            <i className="fa-solid fa-trash-can" aria-hidden="true" />
-          </button>
-          {phoneToUse ? (
-            <a
-              className="call-btn-action detail-call-button"
-              href={`tel:${phoneToUse.replace(/\s/g, "")}`}
-              style={{ flex: 1 }}
-            >
-              <i className="fa-solid fa-phone" aria-hidden="true" />
-              <span>{phoneToUse}</span>
-            </a>
-          ) : null}
-        </div>
+        phoneToUse ? (
+          <a className="call-btn-action detail-call-button" href={`tel:${phoneToUse.replace(/\s/g, "")}`}>
+            <i className="fa-solid fa-phone" aria-hidden="true" />
+            <span>{phoneToUse}</span>
+          </a>
+        ) : null
       }
     >
       <div className="detail-contact-card">
@@ -160,6 +144,29 @@ export function LeadDetailSheet({ isOpen, lead, onClose }: LeadDetailSheetProps)
           </div>
         ) : null}
       </div>
+
+      <button
+        type="button"
+        onClick={handleDelete}
+        disabled={isDeleting}
+        style={{
+          width: "100%",
+          margin: "16px 0",
+          minHeight: "48px",
+          borderRadius: "14px",
+          display: "inline-flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: "10px",
+          background: "#fee2e2",
+          color: "#991b1b",
+          fontWeight: 800,
+          border: "1px solid #fca5a5",
+        }}
+      >
+        <i className="fa-solid fa-trash-can" aria-hidden="true" />
+        <span>{isDeleting ? "Wird gelöscht..." : "Lead löschen"}</span>
+      </button>
 
       {lead.appointmentDate ? (
         <div className="termin-block-nice">
