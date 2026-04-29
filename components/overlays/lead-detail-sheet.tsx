@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { SheetOverlay } from "@/components/ui/sheet-overlay";
 import {
   getLeadDisplayName,
@@ -8,6 +9,7 @@ import {
   hasReplacementContact,
 } from "@/components/shared/lead-contact-card-lines";
 import { statusMeta } from "@/lib/dashboard-data";
+import { isSupabaseConfigured, supabase } from "@/lib/supabase-client";
 import { Lead } from "@/types/dashboard";
 
 type LeadDetailSheetProps = {
@@ -17,6 +19,8 @@ type LeadDetailSheetProps = {
 };
 
 export function LeadDetailSheet({ isOpen, lead, onClose }: LeadDetailSheetProps) {
+  const [isDeleting, setIsDeleting] = useState(false);
+
   if (!lead) return null;
 
   const replacement = hasReplacementContact(lead);
@@ -34,6 +38,33 @@ export function LeadDetailSheet({ isOpen, lead, onClose }: LeadDetailSheetProps)
     </span>
   );
 
+  async function handleDelete() {
+    if (!lead || isDeleting) return;
+
+    const confirmed = window.confirm(
+      `Lead "${lead.company || displayName || lead.id}" wirklich löschen?`,
+    );
+    if (!confirmed) return;
+
+    setIsDeleting(true);
+    try {
+      if (isSupabaseConfigured && supabase) {
+        await supabase.from("call_run_leads").delete().eq("lead_id", lead.id);
+        await supabase.from("appointments").delete().eq("lead_id", lead.id);
+        await supabase.from("staged_leads").delete().eq("id", lead.id);
+        const result = await supabase.from("leads").delete().eq("id", lead.id);
+        if (result.error) throw result.error;
+      }
+
+      onClose();
+      window.setTimeout(() => window.location.reload(), 150);
+    } catch (error) {
+      console.error("Lead konnte nicht gelöscht werden", error);
+      window.alert("Lead konnte nicht gelöscht werden. Bitte nochmals versuchen.");
+      setIsDeleting(false);
+    }
+  }
+
   return (
     <SheetOverlay
       isOpen={isOpen}
@@ -41,12 +72,28 @@ export function LeadDetailSheet({ isOpen, lead, onClose }: LeadDetailSheetProps)
       onClose={onClose}
       headerAside={headerBadge}
       footer={
-        phoneToUse ? (
-          <a className="call-btn-action detail-call-button" href={`tel:${phoneToUse.replace(/\s/g, "")}`}>
-            <i className="fa-solid fa-phone" aria-hidden="true" />
-            <span>{phoneToUse}</span>
-          </a>
-        ) : null
+        <div className="detail-footer-actions" style={{ display: "flex", gap: "0.75rem", width: "100%" }}>
+          <button
+            className="btn-secondary"
+            type="button"
+            onClick={handleDelete}
+            disabled={isDeleting}
+            title="Lead löschen"
+            style={{ flex: "0 0 auto" }}
+          >
+            <i className="fa-solid fa-trash-can" aria-hidden="true" />
+          </button>
+          {phoneToUse ? (
+            <a
+              className="call-btn-action detail-call-button"
+              href={`tel:${phoneToUse.replace(/\s/g, "")}`}
+              style={{ flex: 1 }}
+            >
+              <i className="fa-solid fa-phone" aria-hidden="true" />
+              <span>{phoneToUse}</span>
+            </a>
+          ) : null}
+        </div>
       }
     >
       <div className="detail-contact-card">
