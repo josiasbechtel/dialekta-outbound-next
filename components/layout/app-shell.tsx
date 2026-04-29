@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { ReactNode } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { ReactNode, useEffect } from "react";
 import { useDashboard } from "@/hooks/use-dashboard";
 import { navItems } from "@/lib/config/navigation";
 
@@ -12,8 +12,15 @@ type AppShellProps = {
 
 export function AppShell({ children }: AppShellProps) {
   const pathname = usePathname();
-  const { loadDemoData, resetSystem, leads, upcomingAppointments } = useDashboard();
+  const router = useRouter();
+  const { loadDemoData, resetSystem, leads, upcomingAppointments, currentCallId, liveQueue } = useDashboard();
   const salesBadgeCount = leads.filter((lead) => ["interest", "callback"].includes(lead.status)).length;
+
+  useEffect(() => {
+    if (currentCallId && liveQueue.length > 0 && pathname !== "/live") {
+      router.push("/live");
+    }
+  }, [currentCallId, liveQueue.length, pathname, router]);
 
   return (
     <div className="app-frame">
