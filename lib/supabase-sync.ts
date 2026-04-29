@@ -132,21 +132,25 @@ export async function loadDashboardState(): Promise<DashboardSnapshot | null> {
     runLeadMap.set(row.call_run_id, ids);
   });
 
+  const liveQueue = (runsResult.data ?? []).map((row: any) => ({
+    id: row.id,
+    branch: row.branch,
+    ids: runLeadMap.get(row.id) ?? [],
+    total: row.total,
+    isPlanned: row.is_planned,
+    planDate: row.plan_date,
+    planFrom: row.plan_from,
+    planTo: row.plan_to,
+    planTimestamp: row.plan_timestamp ?? 0,
+  }));
+
+  const activeRun = (runsResult.data ?? []).find((row: any) => Boolean(row.current_call_id));
+
   return {
     leads: (leadsResult.data ?? []).map(fromLeadRow),
     staged: (stagedResult.data ?? []).map(fromStagedRow),
-    liveQueue: (runsResult.data ?? []).map((row: any) => ({
-      id: row.id,
-      branch: row.branch,
-      ids: runLeadMap.get(row.id) ?? [],
-      total: row.total,
-      isPlanned: row.is_planned,
-      planDate: row.plan_date,
-      planFrom: row.plan_from,
-      planTo: row.plan_to,
-      planTimestamp: row.plan_timestamp ?? 0,
-    })),
-    currentCallId: null,
+    liveQueue,
+    currentCallId: activeRun?.current_call_id ?? null,
   };
 }
 
@@ -157,6 +161,9 @@ export async function saveDashboardState(snapshot: DashboardSnapshot) {
 
   const stagedToPersist = snapshot.staged.filter((lead) => !isSimulationId(lead.id));
   const leadsToPersist = snapshot.leads.filter((lead) => !isSimulationId(lead.id));
+  const queueToPersist = snapshot.liveQueue.filter((queue) =>
+    queue.ids.some((leadId) => leadsToPersist.some((lead) => lead.id === leadId)),
+  );
 
   const existingStagedResult = await supabase.from("staged_leads").select("id");
   if (existingStagedResult.error) throw existingStagedResult.error;
@@ -177,9 +184,18 @@ export async function saveDashboardState(snapshot: DashboardSnapshot) {
     if (result.error) throw result.error;
   }
 
-  if (snapshot.liveQueue.length > 0) {
+  const existingRunsResult = await supabase.from("call_runs").select("id");
+  if (existingRunsResult.error) throw existingRunsResult.error;
+
+  await deleteMissingRows(
+    "call_runs",
+    (existingRunsResult.data ?? []).map((row: any) => row.id),
+    queueToPersist.map((queue) => queue.id),
+  );
+
+  if (queueToPersist.length > 0) {
     const runResult = await supabase.from("call_runs").upsert(
-      snapshot.liveQueue.map((queue) => ({
+      queueToPersist.map((queue) => ({
         id: queue.id,
         branch: queue.branch,
         total: queue.total,
@@ -193,7 +209,7 @@ export async function saveDashboardState(snapshot: DashboardSnapshot) {
     );
     if (runResult.error) throw runResult.error;
 
-    const junctionRows = snapshot.liveQueue.flatMap((queue) =>
+    const junctionRows = queueToPersist.flatMap((queue) =>
       queue.ids.map((leadId, position) => ({
         id: `${queue.id}-${leadId}`,
         call_run_id: queue.id,
